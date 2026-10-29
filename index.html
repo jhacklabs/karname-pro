@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+
+<!-- skill:libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" integrity="sha384-XcdcwHqIPULERb2yDEM4R0XaQKU3YnDsrTmjACBZyfdVVqjh6xQ4/DCMd7XLcA6Y" crossorigin="anonymous"></script>
+<!-- /skill:libraries -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="کارنامه Pro؛ ابزار مدیریت و تحلیل کارنامه و آزمون‌ها">
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>کارنامه Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --font:Vazirmatn,system-ui,-apple-system,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:20px;--s6:28px;--s7:40px;--s8:64px;
+}
+[data-theme="dark"]{
+  --bg:oklch(14% .022 265);
+  --surface:oklch(18% .024 265);
+  --surface-hi:oklch(22% .028 265);
+  --sunk:oklch(12% .02 265);
+  --ink:oklch(96% .01 265);
+  --ink2:oklch(76% .02 265);
+  --ink3:oklch(54% .025 265);
+  --line:oklch(25% .025 265);
+  --line2:oklch(32% .03 265);
+  --acc:oklch(68% .22 265);
+  --acc-glow:oklch(68% .22 265 / .25);
+  --acc-soft:oklch(24% .06 265);
+  --ok:oklch(72% .18 155);
+  --ok-soft:oklch(22% .06 155);
+  --ok-line:oklch(35% .09 155);
+  --bad:oklch(66% .22 25);
+  --bad-soft:oklch(22% .07 25);
+  --bad-line:oklch(35% .09 25);
+  --mute:oklch(28% .02 265);
+  --gold:oklch(78% .16 75);
+  --gold-soft:oklch(24% .06 75);
+  --card-shadow:0 8px 32px -4px oklch(5% .02 265 / .6);
+}
+[data-theme="light"]{
+  --bg:oklch(96.5% .012 265);
+  --surface:oklch(99.5% .005 265);
+  --surface-hi:oklch(100% 0 0);
+  --sunk:oklch(93.5% .015 265);
+  --ink:oklch(20% .04 265);
+  --ink2:oklch(42% .03 265);
+  --ink3:oklch(58% .025 265);
+  --line:oklch(89% .015 265);
+  --line2:oklch(82% .02 265);
+  --acc:oklch(52% .22 265);
+  --acc-glow:oklch(52% .22 265 / .2);
+  --acc-soft:oklch(93% .05 265);
+  --ok:oklch(56% .16 155);
+  --ok-soft:oklch(94% .06 155);
+  --ok-line:oklch(82% .09 155);
+  --bad:oklch(58% .21 25);
+  --bad-soft:oklch(94% .05 25);
+  --bad-line:oklch(82% .09 25);
+  --mute:oklch(86% .015 265);
+  --gold:oklch(68% .16 75);
+  --gold-soft:oklch(94% .06 75);
+  --card-shadow:0 12px 36px -6px oklch(30% .04 265 / .08);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  position:relative;
+  transition:background-color .3s var(--ease),color .3s var(--ease);
+}
+
+/* ambient tech backdrop */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% -20%,var(--acc-glow),transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.25}
+h1{font-size:clamp(1.8rem,3.4vw,2.6rem);font-weight:900;letter-spacing:-.02em}
+h2{font-size:1.25rem;font-weight:800}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* header */
+.top{
+  position:sticky;
+  top:0;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--s4);
+  padding:var(--s3) var(--s6);
+  background:color-mix(in oklch,var(--bg) 85%,transparent);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:1.15rem;letter-spacing:-.01em}
+.mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  background:linear-gradient(135deg,var(--acc),oklch(50% .2 310));
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 0 20px var(--acc-glow);
+}
+#nav{display:flex;gap:var(--s1);background:var(--surface);padding:4px;border-radius:999px;border:1px solid var(--line)}
+#nav button{
+  border:0;
+  background:none;
+  padding:7px 18px;
+  border-radius:999px;
+  color:var(--ink2);
+  font-weight:600;
+  font-size:.9rem;
+  transition:all .2s var(--ease);
+}
+#nav button:hover{color:var(--ink)}
+#nav button.on{
+  background:var(--acc);
+  color:#fff;
+  box-shadow:0 4px 16px var(--acc-glow);
+}
+.actions-top{display:flex;align-items:center;gap:var(--s2)}
+.theme-btn,.lang-sel{
+  height:38px;
+  border-radius:10px;
+  border:1px solid var(--line2);
+  background:var(--surface);
+  color:var(--ink);
+  font-weight:600;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:all .15s var(--ease);
+}
+.theme-btn{width:38px;padding:0;font-size:1.1rem}
+.theme-btn:hover,.lang-sel:hover{background:var(--surface-hi);border-color:var(--acc)}
+
+main{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:var(--s6) var(--s5) var(--s8)}
+main>*{animation:reveal .4s var(--ease) both}
+@keyframes reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* fields */
+.field label{display:block;font-size:.8rem;color:var(--ink2);margin-bottom:6px;font-weight:600}
+input,select,textarea{
+  font:inherit;
+  color:inherit;
+  background:var(--surface);
+  border:1px solid var(--line2);
+  border-radius:12px;
+  padding:10px 14px;
+  min-height:46px;
+  width:100%;
+  transition:border-color .15s,box-shadow .15s,background .15s;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+textarea{min-height:110px;resize:vertical;line-height:1.7}
+.total-field input{
+  font-size:1.6rem;
+  font-weight:900;
+  text-align:center;
+  border-color:var(--acc);
+  background:var(--acc-soft);
+  color:var(--ink);
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:44px;
+  padding:0 20px;
+  border-radius:12px;
+  border:1px solid var(--line2);
+  background:var(--surface);
+  font-weight:700;
+  font-size:.92rem;
+  transition:all .15s var(--ease);
+  white-space:nowrap;
+}
+.btn:hover{background:var(--surface-hi);border-color:var(--line)}
+.btn:active{transform:scale(.98)}
+.btn.primary{
+  background:var(--acc);
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 6px 20px var(--acc-glow);
+}
+.btn.primary:hover{opacity:.92;transform:translateY(-1px)}
+.btn.ghost{border-color:transparent;background:none;color:var(--ink2)}
+.btn.ghost:hover{background:var(--surface);color:var(--ink)}
+.btn.sm{min-height:36px;padding:0 14px;font-size:.85rem;border-radius:9px}
+.btn.danger{color:var(--bad);border-color:var(--bad-line);background:var(--bad-soft)}
+.btn.danger:hover,.btn.armed{background:var(--bad);color:#fff;border-color:transparent}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:800}
+.hint{color:var(--ink3);font-size:.86rem}
+.warn{color:var(--bad);font-size:.86rem;font-weight:600}
+.row{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap}
+
+/* cards & dashboard */
+.dash-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s4);flex-wrap:wrap;margin-bottom:var(--s6)}
+.stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s4);margin-bottom:var(--s6)}
+.sc{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:var(--s5);
+  box-shadow:var(--card-shadow);
+  display:grid;
+  gap:4px;
+  position:relative;
+  overflow:hidden;
+}
+.sc::before{
+  content:"";
+  position:absolute;
+  inset-inline-start:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:var(--acc);
+}
+.sc dt{font-size:.8rem;color:var(--ink3);font-weight:600}
+.sc dd{margin:0;font-size:2rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.2}
+.sc .delta{font-size:.85rem;font-weight:700}
+.up{color:var(--ok)}.down{color:var(--bad)}
+
+.chart-panel{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:var(--s5) var(--s5) var(--s3);
+  box-shadow:var(--card-shadow);
+  margin-bottom:var(--s7);
+}
+.chart-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s3);flex-wrap:wrap;gap:var(--s3)}
+.chart-wrap{height:340px;position:relative}
+#exam-chart-select{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:var(--surface-hi);color:var(--ink);font:inherit;min-width:220px}
+.weak li{border-bottom:1px solid var(--line)}.weak li:last-child{border-bottom:0}
+
+.chips{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:center;margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+.chip{
+  border:1px solid var(--line2);
+  background:var(--bg);
+  border-radius:999px;
+  padding:5px 14px;
+  font-size:.82rem;
+  color:var(--ink2);
+  font-weight:600;
+  transition:all .15s;
+}
+.chip:hover{border-color:var(--acc);color:var(--ink)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 2px 10px var(--acc-glow)}
+
+.dash-cols{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr);gap:var(--s6);align-items:start}
+.exam-list{display:grid;gap:var(--s3)}
+.ex{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--card-shadow);
+  overflow:hidden;
+  transition:border-color .15s;
+}
+.ex:hover{border-color:var(--line2)}
+.ex-head{
+  display:grid;
+  grid-template-columns:110px minmax(0,1fr) 140px 76px 20px;
+  align-items:center;
+  gap:var(--s4);
+  width:100%;
+  padding:16px var(--s5);
+  background:none;
+  border:0;
+  text-align:start;
+}
+.ex-date{color:var(--ink3);font-size:.85rem;font-weight:600}
+.ex-name{font-weight:700;font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-name small{color:var(--ink3);font-weight:400;margin-inline-start:8px;font-size:.82rem}
+.stack{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--mute)}
+.stack span{display:block;height:100%;transition:width .4s var(--ease)}
+.stack .c{background:var(--ok)}.stack .w{background:var(--bad)}
+.ex-pct{font-weight:900;font-size:1.25rem;text-align:end;font-variant-numeric:tabular-nums;color:var(--acc)}
+.ex-pct.neg{color:var(--bad)}
+.chev{color:var(--ink3);transition:transform .3s var(--ease);font-size:.8rem;text-align:center}
+.ex.open .chev{transform:rotate(180deg)}
+.ex-body{
+  padding:var(--s2) var(--s5) var(--s5);
+  display:grid;
+  gap:var(--s4);
+  border-top:1px solid var(--line);
+  background:var(--sunk);
+}
+.bd{display:grid;gap:4px}
+.bd-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 48px 48px 48px 74px;
+  gap:var(--s2);
+  padding:8px var(--s3);
+  font-size:.9rem;
+  font-variant-numeric:tabular-nums;
+  border-radius:8px;
+  background:var(--surface);
+}
+.bd-row.cf{grid-template-columns:minmax(0,1fr) 42px 42px 42px 76px 92px}
+.bd-row span:not(:first-child){text-align:center}
+.bd-row b{text-align:end}
+.bd-row.h{color:var(--ink3);font-size:.78rem;font-weight:700;background:none;padding:0 var(--s3)}
+.bd-row .c{color:var(--ok);font-weight:700}.bd-row .w{color:var(--bad);font-weight:700}.bd-row .b{color:var(--ink3)}
+.strip{display:flex;flex-wrap:wrap;gap:3px}
+.strip i{width:11px;height:14px;border-radius:3px;background:var(--mute)}
+.strip i.c{background:var(--ok)}.strip i.w{background:var(--bad)}
+.strip i.f{outline:2px solid var(--gold);outline-offset:1px}
+
+.weak-box{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:var(--s5);
+  box-shadow:var(--card-shadow);
+  display:grid;
+  gap:var(--s4);
+}
+.weak{list-style:none;margin:0;padding:0;display:grid;gap:var(--s4)}
+.weak li{display:grid;grid-template-columns:1fr auto;gap:4px 8px}
+.weak li b{font-variant-numeric:tabular-nums}
+.weak small{font-size:.75rem;margin-inline-start:6px;font-weight:700}
+.thin{grid-column:1/-1;height:6px;background:var(--mute);border-radius:99px;overflow:hidden}
+.thin span{display:block;height:100%;background:var(--acc);border-radius:99px}
+.weak li:first-child .thin span{background:var(--bad)}
+
+/* editor */
+.editor{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:var(--s6);align-items:start}
+.ed-main{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:var(--s6);
+  box-shadow:var(--card-shadow);
+  display:grid;
+  gap:var(--s6);
+}
+.basics{display:grid;grid-template-columns:1.5fr 1.2fr 1fr;gap:var(--s4)}
+.basics .total-field{grid-column:1}
+.basics .name{grid-column:2/-1}
+.sec-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);flex-wrap:wrap}
+.seg-toggle{display:inline-flex;background:var(--sunk);border-radius:12px;padding:4px;gap:2px}
+.seg-toggle button{
+  border:0;
+  background:none;
+  padding:8px 18px;
+  border-radius:9px;
+  color:var(--ink2);
+  font-weight:600;
+  min-height:38px;
+  transition:all .15s;
+}
+.seg-toggle button.on{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px oklch(0% 0 0 / .15)}
+.st-row{display:grid;grid-template-columns:minmax(120px,2fr) repeat(5,minmax(52px,1fr)) 36px;gap:var(--s2);align-items:center;margin-bottom:var(--s2)}
+.st-head{font-size:.76rem;color:var(--ink3);font-weight:700}
+.st-row input{text-align:center}
+.st-row input[data-k=name]{text-align:start}
+.st-row output{display:flex;align-items:center;justify-content:center;min-height:46px;border-radius:12px;background:var(--sunk);color:var(--ink2);font-weight:700}
+.rng-row{display:grid;grid-template-columns:minmax(100px,1fr) 70px 70px 64px 36px;gap:var(--s2);align-items:center;margin-bottom:var(--s2)}
+.rng-row input{text-align:center}.rng-row input[data-k=name]{text-align:start}
+.tools{display:grid;gap:var(--s3);padding:var(--s4);background:var(--sunk);border-radius:14px;border:1px solid var(--line)}
+.quick{display:grid;grid-template-columns:auto 80px minmax(0,1fr) auto;gap:var(--s2);align-items:center}
+.quick #qtext{direction:ltr;letter-spacing:.25em;font-weight:700}
+kbd{background:var(--surface);border:1px solid var(--line2);border-radius:6px;padding:1px 6px;font-size:.85em}
+.qgroup{margin-top:var(--s5)}
+.qg-head{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap;margin-bottom:var(--s3)}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:8px}
+.q{
+  border:1px solid var(--line);
+  background:var(--bg);
+  border-radius:12px;
+  padding:8px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-areas:"n f" "seg seg" "r r";
+  gap:6px;
+  transition:all .12s;
+}
+.q:focus-visible{outline:2px solid var(--acc);box-shadow:0 0 0 4px var(--acc-glow)}
+.qn{grid-area:n;font-weight:800;font-size:.9rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.fl{grid-area:f;border:0;background:none;color:var(--mute);font-size:1rem;line-height:1;cursor:pointer}
+.flg .fl{color:var(--gold)}
+.flg{border-color:var(--gold);box-shadow:0 0 10px var(--gold-soft)}
+.seg{grid-area:seg;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.seg button{
+  height:32px;
+  border:1px solid var(--line);
+  background:var(--surface);
+  border-radius:8px;
+  font-size:1rem;
+  font-weight:800;
+  color:var(--ink3);
+  padding:0;
+  transition:all .12s;
+}
+.s-c{background:var(--ok-soft);border-color:var(--ok-line)}
+.s-c [data-v=c]{background:var(--ok);border-color:transparent;color:#fff}
+.s-w{background:var(--bad-soft);border-color:var(--bad-line)}
+.s-w [data-v=w]{background:var(--bad);border-color:transparent;color:#fff}
+.s-b [data-v=b]{background:var(--mute);color:var(--ink)}
+.rsn{grid-area:r;min-height:30px;padding:2px 8px;font-size:.76rem;border-radius:8px}
+.q:not(.s-w) .rsn{display:none}
+
+.ed-side{
+  position:sticky;
+  top:88px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:var(--s5);
+  box-shadow:var(--card-shadow);
+  display:grid;
+  gap:var(--s4);
+}
+.big{font-size:clamp(3.2rem,6vw,4.5rem);font-weight:900;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--acc)}
+.big.neg{color:var(--bad)}
+.legend{list-style:none;margin:0;padding:0;display:flex;gap:var(--s4);flex-wrap:wrap;font-size:.9rem;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:middle}
+.legend b{color:var(--ink);font-variant-numeric:tabular-nums}
+i.c{background:var(--ok)}i.w{background:var(--bad)}i.b{background:var(--mute)}
+
+/* error log */
+.err-box{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:var(--s6);
+  box-shadow:var(--card-shadow);
+}
+.err-row{
+  display:grid;
+  grid-template-columns:28px 76px minmax(100px,1fr) 88px minmax(150px,210px) 24px;
+  gap:10px;
+  align-items:center;
+  margin:12px 0;
+  padding:16px;
+  border:1px solid rgba(139,92,246,.25);
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--surface-hi),var(--surface) 58%,rgba(34,211,238,.035));
+  box-shadow:0 8px 24px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.035);
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+.err-row:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.55);box-shadow:0 12px 28px rgba(34,211,238,.09)}
+.err-row.done{opacity:.65;border-color:rgba(52,211,153,.3)}
+.err-row>input[type=checkbox]{accent-color:#a78bfa;width:17px;height:17px}
+.err-row>span:nth-child(2){font-weight:800;color:#c4b5fd}
+.err-row select{min-width:0;width:100%;border-radius:10px}
+.err-row .err-comment{grid-column:1/-1;resize:vertical;min-height:74px;width:100%;margin-top:5px;border-radius:13px;border:1px solid rgba(139,92,246,.22);background:var(--sunk);padding:12px 14px;line-height:1.8;transition:border-color .2s,box-shadow .2s}
+.err-row .err-comment:focus{outline:none;border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.10)}
+.st{font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;justify-self:start}
+.st.s-w{color:var(--bad);background:var(--bad-soft)}.st.s-c{color:var(--ok);background:var(--ok-soft)}.st.s-b{color:var(--ink2);background:var(--sunk)}
+.star{color:var(--gold);font-size:1.1rem}
+
+/* empty state */
+.empty{
+  text-align:center;
+  max-width:540px;
+  margin:var(--s7) auto;
+  padding:var(--s7) var(--s5);
+  background:var(--surface);
+  border:1px dashed var(--line2);
+  border-radius:24px;
+  display:grid;
+  gap:var(--s4);
+  justify-items:center;
+}
+.empty-icon{
+  width:64px;
+  height:64px;
+  border-radius:18px;
+  background:var(--acc-soft);
+  color:var(--acc);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.8rem;
+  font-weight:900;
+  box-shadow:0 0 30px var(--acc-glow);
+}
+
+#toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translate(-50%,20px);
+  background:var(--ink);
+  color:var(--bg);
+  padding:12px 22px;
+  border-radius:12px;
+  font-weight:700;
+  opacity:0;
+  pointer-events:none;
+  transition:all .25s var(--ease);
+  z-index:90;
+  box-shadow:0 10px 30px oklch(0% 0 0 / .4);
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Animated Gemini-inspired aurora neon frames */
+@keyframes auroraFlow{0%{background-position:0% 50%;filter:hue-rotate(0deg)}50%{background-position:100% 50%;filter:hue-rotate(22deg)}100%{background-position:0% 50%;filter:hue-rotate(0deg)}}
+@keyframes auroraPulse{0%,100%{opacity:.55;transform:scale(.995)}50%{opacity:1;transform:scale(1)}}
+/* Quiet surfaces for small cards; slow aurora only on major containers */
+.sc,.ex,.tools{
+  border:1px solid var(--line);
+  background:var(--surface);
+  animation:none;
+  box-shadow:var(--card-shadow);
+}
+.chart-panel,.weak-box,.history-panel,.ed-main,.ed-side,.err-box,.empty{
+  border:1px solid transparent;
+  background:linear-gradient(var(--surface),var(--surface)) padding-box,
+    linear-gradient(125deg,#8b5cf6 0%,#22d3ee 18%,#34d399 35%,#f0abfc 52%,#818cf8 70%,#22d3ee 100%) border-box;
+  background-size:100% 100%, 260% 260%;
+  animation:auroraFlow 18s ease-in-out infinite;
+  box-shadow:var(--card-shadow),0 0 0 1px rgba(139,92,246,.10),0 0 16px rgba(34,211,238,.055);
+}
+.chart-panel{padding:var(--s5);}
+.panel-content[hidden]{display:none!important}
+.collapse-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;
+  padding:5px 11px;border:1px solid var(--line2);border-radius:10px;background:var(--surface-hi);
+  color:var(--ink2);font-size:.78rem;font-weight:700;white-space:nowrap;transition:all .2s var(--ease)
+}
+.collapse-btn:hover{color:var(--ink);border-color:var(--acc);box-shadow:0 0 14px var(--acc-glow)}
+.collapse-symbol{font-size:1rem;line-height:1;color:var(--acc);font-weight:900}
+.dash-actions{gap:8px}
+.dashboard-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.history-panel{border-radius:18px;padding:var(--s5);min-width:0}
+.study-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.study-item{padding:14px 0;border-bottom:1px solid var(--line)}
+.study-item:last-child{border-bottom:0;padding-bottom:0}
+.study-item-top{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.study-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800}
+.study-tag{font-size:.7rem;font-weight:800;border-radius:999px;padding:3px 8px;color:var(--acc);background:var(--acc-soft);border:1px solid var(--line2)}
+.study-tag.alert{color:var(--bad);background:var(--bad-soft);border-color:var(--bad-line)}
+.study-tag.good{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.study-metrics{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.study-metrics span{font-size:.72rem;color:var(--ink2);border:1px solid var(--line);background:var(--sunk);border-radius:7px;padding:3px 7px}
+.study-tip{grid-column:1/-1;font-size:.83rem;line-height:1.9;color:var(--ink2);margin-top:9px}
+.study-tip b{color:var(--ink);font-weight:800}
+.chart-footnote{font-size:.76rem;color:var(--ink3);margin-top:8px}
+.subject-chart-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.subject-chart-tools select{max-width:320px;width:auto;min-width:220px}
+@media(max-width:720px){
+  .collapse-btn .collapse-label{display:none}
+  .chart-panel,.weak-box,.history-panel{padding:14px}
+  .subject-chart-tools{width:100%}
+  .subject-chart-tools select{flex:1;min-width:0;max-width:none}
+}
+.ex-body{border-top:1px solid var(--line)}
+.q{transition:border-color .2s,box-shadow .2s}
+.q.s-w{border-color:rgba(251,113,133,.65);box-shadow:0 0 10px rgba(244,63,94,.12)}
+.q.s-c{border-color:rgba(52,211,153,.38)}
+.err-comment{font-size:.86rem}
+.coeff-label{font-size:.7rem;color:var(--ink3);display:block;margin-bottom:2px}
+@media (max-width:980px){
+  .editor,.dash-cols{grid-template-columns:1fr}
+  .ed-side{position:static}
+}
+@media (max-width:720px){
+  .top{padding:var(--s3) var(--s4)}
+  .brand span{display:none}
+  main{padding:var(--s4) var(--s3) var(--s8)}
+  .basics{grid-template-columns:1fr}
+  .st-row{grid-template-columns:repeat(4,1fr) 36px}
+  .st-row input[data-k=name]{grid-column:1/-1}
+  .ex-head{grid-template-columns:minmax(0,1fr) 70px 14px;gap:var(--s2)}
+  .ex-head .ex-date{grid-column:1/-1}
+  .ex-head .stack{grid-column:1/-1}
+  .err-row{grid-template-columns:24px 1fr 24px;row-gap:10px;padding:13px}
+  .err-row>input[type=checkbox]{grid-column:1;grid-row:1}
+  .err-row>span:nth-child(2){grid-column:2;grid-row:1}
+  .err-row>span:nth-child(3){grid-column:1/-1;grid-row:2}
+  .err-row .st{grid-column:1/3;grid-row:3}
+  .err-row select{grid-column:1/-1;grid-row:4}
+  .err-row .star{grid-column:3;grid-row:1}
+}
+@media(prefers-reduced-motion:reduce){.sc,.chart-panel,.ex,.weak-box,.history-panel,.ed-main,.ed-side,.err-box,.tools,.empty{animation:none!important}.err-row,.collapse-btn{transition:none!important}}
+
+/* Subtle bottom signature */
+.signature{position:fixed;z-index:20;bottom:7px;left:50%;transform:translateX(-50%);font:500 10px/1.2 system-ui,sans-serif;letter-spacing:1.7px;color:var(--ink3);opacity:.48;pointer-events:none;user-select:none;text-shadow:0 0 10px rgba(139,92,246,.28);white-space:nowrap}
+body{padding-bottom:20px}
+@media(prefers-reduced-motion:reduce){.signature{transition:none}}
+
+/* PWA/mobile finishing touches */
+html{ -webkit-text-size-adjust:100%; }
+body{padding-bottom:env(safe-area-inset-bottom)}
+button,select,input,textarea{touch-action:manipulation}
+img,canvas,svg{max-width:100%}
+@media(max-width:720px){
+  main{padding-left:12px!important;padding-right:12px!important;padding-top:18px!important}
+  button,.btn{min-height:40px}
+  input,select,textarea{font-size:16px!important}
+  .table-wrap,.table-scroll,.overflow-x{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+#pwa-install{display:none;position:fixed;z-index:9999;bottom:calc(12px + env(safe-area-inset-bottom));left:12px;right:12px;max-width:520px;margin:auto;padding:12px 14px;border:1px solid #64748b55;border-radius:14px;background:#111827;color:#fff;box-shadow:0 8px 32px #0004;align-items:center;gap:12px;font:inherit}
+#pwa-install button{border:0;border-radius:9px;padding:9px 13px;background:#fff;color:#111827;font:inherit;font-weight:700;cursor:pointer}
+#pwa-install .pwa-dismiss{background:transparent;color:#fff;padding:5px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="mark">K</span>
+    <span id="brand-title">کارنامه Pro</span>
+  </div>
+  <nav id="nav"></nav>
+  <div class="actions-top">
+    <button class="theme-btn" id="theme-btn" title="تغییر تم" aria-label="Toggle theme">🌙</button>
+    <select class="lang-sel" id="lang" aria-label="Language"></select>
+  </div>
+</header>
+<main id="main"></main>
+<div id="toast"></div>
+<footer class="signature" aria-label="Credit">by Jhack</footer>
+
+<script>
+const I18N={
+fa:{app:'کارنامه Pro',nav_dash:'روند و کارنامه',nav_new:'آزمون تازه',nav_err:'دفتر خطا',nav_set:'تنظیمات',name:'نام آزمون',date:'تاریخ',total:'تعداد سؤال',penalty:'نمره منفی',pen_3:'هر ۳ غلط، ۱ درست را می‌برد (کنکور)',pen_4:'هر ۴ غلط، ۱ درست را می‌برد',pen_0:'بدون نمره منفی',mode:'روش ورود',mode_overall:'کلی (درسی)',mode_detail:'سؤال به سؤال (پیشرفته)',subject:'درس',count:'تعداد',correct:'درست',wrong:'غلط',blank:'نزده',add_subject:'+ افزودن درس',ranges:'بازه شماره سؤالات هر درس',from:'از',to:'تا',add_range:'+ افزودن بازه',all_correct:'همه درست',clear:'پاک‌سازی',keys_hint:'کلیدهای سریع کیبورد: <kbd>1</kbd> درست، <kbd>2</kbd> غلط، <kbd>0</kbd> نزده. با جهت‌ها جابه‌جا شو.',quick:'ورود سریع متوالی از سؤال',quick_ph:'رشته کد: مثلاً 1121002',apply:'اعمال کد',reason:'علت خطا',r_none:'علت غلط؟',r_careless:'بی‌دقتی محاسباتی/نگاهی',r_concept:'ضعف آموزشی/مفهومی',r_time:'کمبود وقت/سرعت',r_misread:'غلط خواندن صورت سؤال',r_guess:'شک‌دار/حدس اشتباه',flag:'نشان‌دار برای مرور',note:'تحلیل و استراتژی آزمون',note_ph:'کدام درس وقتت را گرفت؟ کدام مبحث نیاز به مرور فوری دارد؟',rank:'رتبه',level:'تراز',optional:'اختیاری',result:'نتیجه زنده آزمون',save:'ذخیره نهایی',update:'ثبت تغییرات',cancel:'انصراف',overflow:'مجموع درست و غلط از کل سؤالات این درس بیشتر است!',uncovered:'{n} سؤال در بازه‌های انتخابی قرار ندارند و در «سایر» منظور شدند.',other:'سایر',whole:'کل سؤالات',need_total:'ابتدا تعداد کل سؤالات را وارد کن.',empty_title:'هنوز آزمونی وارد نشده',empty_body:'اولین آزمونت را ثبت کن تا داشبورد هوشمند و نمودار پیشرفتت فعال شود.',avg:'میانگین کل',best:'بهترین درصد',last:'آخرین درصد',trend:'تغییر نسبت به قبل',goal:'هدف‌گذاری',weak:'اولویت مطالعه (از ضعیف به قوی)',weak_hint:'میانگین درصدهای اخیر برای پیدا کردن نقاط ضعف',history:'تاریخچه آزمون‌ها',edit:'ویرایش',del:'حذف',sure:'مطمئنی؟',exams_n:'{n} آزمون ثبت‌شده',save_tpl:'ذخیره الگو',load_tpl:'الگوهای آماده…',tpl_ph:'نام الگو (مثل جامع سنجش)',err_title:'دفتر تحلیل خطاهای آزمون',f_all:'همه موارد',f_wrong:'فقط غلط‌ها',f_flag:'نشان‌دارها',f_open:'مرورنشده‌ها',err_empty:'دفتر خطای شما خالی است. با ورود آزمون‌های تفکیکی سؤال به سؤال، غلط‌ها و شک‌دارهای شما خودکار به اینجا منتقل می‌شوند.',q:'سؤال',reasons_dist:'تحلیل ریشه‌ای علت غلط‌ها',lang:'زبان برنامه',goal_set:'درصد هدف‌گذاری',default_pen:'ضریب نمره منفی پیش‌فرض',backup:'پشتیبان‌گیری ابری و آفلاین',export:'دریافت فایل پشتیبان (JSON)',import:'بازیابی از فایل',paste_ph:'یا محتوای متنی پشتیبان را اینجا جای‌گذاری کن...',restore_paste:'بازیابی متن',reset:'حذف کلیه آزمون‌ها و صفر کردن',imported:'اطلاعات بازیابی شد',saved:'با موفقیت ذخیره شد',deleted:'حذف شد',formula:'درصد کلِ ضریب‌دار = مجموع (درصد هر درس × ضریب آن) ÷ مجموع ضرایب',coef_hint:'ضریب، وزن هر درس را در درصد کل تغییر می‌دهد؛ درصد خودِ هر درس جداگانه می‌ماند. اگر فقط یک درس داشته باشی یا همه ضرایب برابر باشند، ممکن است درصد کل تغییر نکند.',subjects_on_chart:'تفکیک درسی روی نمودار:',storage_off:'حافظه محلی غیرفعال است. حتماً از آزمون‌هایت پشتیبان متنی بگیر.',templates:'الگوهای از پیش آماده',tpl_hint:'آرایش دروس آزمون‌ها (مثل قلمچی یا گاج) را ذخیره کن تا هربار تایپ نکنی.',no_tpl:'الگویی ساخته نشده است.',questions:'سؤال',untitled:'آزمون بدون عنوان',bad_file:'فایل واردشده معتبر نیست.',range:'{a} الی {b}',sum_mismatch:'جمع سؤالات درس‌ها ({a}) با تعداد کل آزمون ({b}) همخوانی ندارد.',overall_hint:'تعداد نزده‌ها خودکار محاسبه می‌شود.',notes_saved:'یادداشت آزمون ذخیره گردید.',open_err:'مشاهده دفتر خطا',total_line:'مجموع کل'},
+en:{app:'Karnameh Pro',nav_dash:'Dashboard',nav_new:'New Exam',nav_err:'Mistake Log',nav_set:'Settings',name:'Exam Name',date:'Date',total:'Questions',penalty:'Penalty Ratio',pen_3:'3 wrong cancel 1 right (1/3)',pen_4:'4 wrong cancel 1 right (1/4)',pen_0:'No penalty',mode:'Input Mode',mode_overall:'By Subject (Overall)',mode_detail:'Question by Question (Detailed)',subject:'Subject',count:'Count',correct:'Right',wrong:'Wrong',blank:'Blank',add_subject:'+ Add Subject',ranges:'Question Ranges',from:'From',to:'To',add_range:'+ Add Range',all_correct:'All Right',clear:'Clear',keys_hint:'Shortcuts: <kbd>1</kbd> Right, <kbd>2</kbd> Wrong, <kbd>0</kbd> Blank. Arrow keys to navigate.',quick:'Fast String Entry from Q',quick_ph:'e.g. 1121002',apply:'Apply',reason:'Error Reason',r_none:'Select reason',r_careless:'Careless mistake',r_concept:'Conceptual flaw',r_time:'Time crunch',r_misread:'Misread question',r_guess:'Wrong guess',flag:'Flag for review',note:'Exam Analysis & Strategy',note_ph:'What went wrong? Which section needs immediate focus?',rank:'Rank',level:'Score Level',optional:'Optional',result:'Live Score',save:'Save Exam',update:'Update Changes',cancel:'Cancel',overflow:'Right + Wrong exceeds question count!',uncovered:'{n} questions are outside defined ranges and marked as "Other".',other:'Other',whole:'All Questions',need_total:'Please set total questions first.',empty_title:'No Exams Recorded',empty_body:'Log your first exam to unlock the analytics dashboard and trend charts.',avg:'Average',best:'Peak Score',last:'Latest',trend:'vs Previous',goal:'Target Goal',weak:'Study Priorities (Weakest First)',weak_hint:'Weighted average of recent tests',history:'Exam Log',edit:'Edit',del:'Delete',sure:'Confirm?',exams_n:'{n} Exams',save_tpl:'Save as Template',load_tpl:'Load Template…',tpl_ph:'Template Name',err_title:'Mistake & Flag Log',f_all:'All Items',f_wrong:'Wrongs Only',f_flag:'Flagged',f_open:'Pending Review',err_empty:'No mistakes recorded yet. Detailed exams feed their wrong and flagged items automatically here.',q:'Q',reasons_dist:'Root Cause Distribution',lang:'Interface Language',goal_set:'Target Score %',default_pen:'Default Negative Penalty',backup:'Data Backup & Restore',export:'Export JSON Backup',import:'Import from File',paste_ph:'Or paste JSON backup string here...',restore_paste:'Restore String',reset:'Wipe All Data',imported:'Data restored',saved:'Saved successfully',deleted:'Deleted',formula:'Weighted score = Σ(subject percentage × subject coefficient) ÷ Σ(subject coefficients)',coef_hint:'Coefficients change each subject’s weight in the overall score; individual subject percentages stay the same. With one subject or equal coefficients, the total may not change.',subjects_on_chart:'Subjects Breakdown:',storage_off:'Local storage is disabled. Keep text backups.',templates:'Subject Layout Templates',tpl_hint:'Save custom exam distributions once, apply anytime.',no_tpl:'No templates yet.',questions:'questions',untitled:'Untitled Exam',bad_file:'Invalid backup format',range:'{a} to {b}',sum_mismatch:'Subject sum ({a}) does not match total questions ({b}).',overall_hint:'Blanks are calculated automatically.',notes_saved:'Notes saved',open_err:'Open Mistake Log',total_line:'Overall'}
+};
+
+const LANGS={fa:{label:'فارسی',dir:'rtl',loc:'fa-IR',dloc:'fa-IR-u-ca-persian'},en:{label:'English',dir:'ltr',loc:'en-US',dloc:'en-US'}};
+const REASONS=['careless','concept','time','misread','guess'];
+const PENS=[{v:1/3,k:'pen_3',f:'⅓'},{v:1/4,k:'pen_4',f:'¼'},{v:0,k:'pen_0',f:'0'}];
+const KEY='karnameh_pro.v2';
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw)return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+function sanitize(o){
+  o=o&&typeof o==='object'?o:{};
+  o.exams=Array.isArray(o.exams)?o.exams:[];
+  o.templates=Array.isArray(o.templates)?o.templates:[];
+  o.settings=Object.assign({lang:'fa',theme:'dark',penalty:1/3,goal:65},o.settings||{});
+  return o;
+}
+let S=sanitize(loadState());
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+let view='dash',draft=null,openId=null,errFilter='all',chart=null,examChart=null,chartSubs=new Set(),noteTimer=null;
+const counterfactualOpen=new Set();
+const DASH_PANELS=['trend','subject','study','history'];
+const collapsedPanels=new Set();
+const allPanelsCollapsed=()=>DASH_PANELS.every(id=>collapsedPanels.has(id));
+const collapseButton=id=>{const shut=collapsedPanels.has(id);return `<button class="collapse-btn" data-collapse="${id}" aria-controls="${id}-content" aria-expanded="${!shut}" title="${shut?'بازکردن کادر':'بستن کادر'}"><span class="collapse-symbol">${shut?'＋':'−'}</span><span class="collapse-label">${shut?'بازکردن':'بستن'}</span></button>`};
+const $=s=>document.querySelector(s), main=$('#main');
+const L=()=>LANGS[S.settings.lang]||LANGS.fa;
+function t(k,v){let s=(I18N[S.settings.lang]||I18N.fa)[k];if(s==null)s=I18N.en[k]??k;if(v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toEn=s=>String(s??'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+const int=s=>{const n=parseInt(toEn(s),10);return isNaN(n)?0:n};
+const coefValue=v=>{if(v==null||String(v).trim()==='')return 1;let x=toEn(v).trim().replace(/[\s\u066c]/g,'').replace(/\u066b/g,'.');if(x.includes(',')&&!x.includes('.')){if(/,\d{1,2}$/.test(x))x=x.replace(',','.');else x=x.replace(/,/g,'')}else{x=x.replace(/,/g,'')}const n=Number(x);return Number.isFinite(n)&&n>=0?n:1};
+const nf=(n,d=0)=>new Intl.NumberFormat(L().loc,{maximumFractionDigits:d}).format(n);
+const pctf=p=>new Intl.NumberFormat(L().loc,{style:'percent',maximumFractionDigits:1}).format((Math.round(p*10)/10)/100);
+const sgn=p=>new Intl.NumberFormat(L().loc,{maximumFractionDigits:1,signDisplay:'exceptZero'}).format(Math.round(p*10)/10);
+const dateF=(iso,short)=>{try{return new Intl.DateTimeFormat(L().dloc,short?{month:'short',day:'numeric'}:{year:'numeric',month:'short',day:'numeric'}).format(new Date(iso+'T12:00:00'))}catch(e){return iso}};
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const clamp=p=>Math.max(0,Math.min(100,p));
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+function subjectKind(name){
+  const x=String(name||'').toLowerCase().replace(/[ي]/g,'ی').replace(/[ك]/g,'ک').replace(/‌/g,' ');
+  if(/ریاضی|حساب|جبر|هندس/.test(x))return'math';
+  if(/فیزیک/.test(x))return'physics';
+  if(/شیمی/.test(x))return'chemistry';
+  if(/زیست|علوم زیست/.test(x))return'biology';
+  if(/علوم/.test(x))return'science';
+  if(/فارسی|ادبیات|نگارش|املا|دستور/.test(x))return'persian';
+  if(/عربی/.test(x))return'arabic';
+  if(/انگلیسی|زبان/.test(x))return'english';
+  if(/مطالعات|تاریخ|جغرافیا|اجتماعی|مدنی/.test(x))return'social';
+  if(/دینی|پیام|قرآن|معارف/.test(x))return'religion';
+  if(/هوش|استعداد|تحلیلی|سرعت و دقت/.test(x))return'aptitude';
+  return'general';
+}
+const STUDY_PLAYBOOK={
+ math:{foundation:'یک مبحث پایه را انتخاب کن؛ یک مثال حل‌شده را بدون نگاه‌کردن بازسازی کن و بعد ۶ مسئله هم‌تیپ را مرحله‌به‌مرحله حل کن.',practice:'از مبحثی شروع کن که بیشتر در آن گیر می‌کنی: ۵ سؤال آموزشی و سپس ۱۰ سؤال ترکیبی بزن؛ راه‌حل هر سؤال را منظم بنویس.',decline:'غلط‌های آزمون آخر را دوباره از صفر حل کن. کنار هرکدام مشخص کن خطا از انتخاب فرمول، تبدیل، علامت یا محاسبه بوده است.',maintain:'برای حفظ آمادگی، یک مجموعه ترکیبی زمان‌دار بزن و در پایان جواب‌ها را با تخمین و جای‌گذاری کنترل کن.',careless:'در هر حل سه کنترل ثابت داشته باش: علامت‌ها، محاسبات میانی و انتقال پاسخ به گزینه.',concept:'قبل از تست‌زنی، مفهوم و دلیل فرمول را با یک مثال توضیح بده؛ بعد ۵ سؤال ساده و ۵ سؤال ترکیبی حل کن.',time:'سؤال‌ها را دو دور بزن: دور اول کوتاه‌ها، دور دوم محاسبات طولانی. برای هر تست سقف زمان مشخص کن.',misread:'داده‌ها و خواستهٔ سؤال را جدا علامت بزن؛ به‌خصوص واحدها، شرط‌ها و واژه‌های «حداقل/حداکثر».',guess:'قبل از محاسبه، دو گزینه را با دلیل حذف کن؛ اگر راه‌حل کامل نداری سؤال را برای دور دوم نشان‌دار کن.'},
+ physics:{foundation:'هر فرمول را همراه با معنی نمادها و یکای آن مرور کن؛ سپس یک مثال ساده را با نوشتن داده‌ها و مجهول حل کن.',practice:'برای هر مبحث چند مسئله با شکل رسم‌شده حل کن و قبل از جای‌گذاری، فرمول و یکاها را بنویس.',decline:'مسئله‌های غلط آخرین آزمون را بدون دیدن پاسخ تشریحی دوباره حل کن؛ ببین در مدل‌سازی، فرمول یا تبدیل یکا توقف می‌کنی.',maintain:'تمرین ترکیبی زمان‌دار انجام بده و در هر سؤال معقول‌بودن واحد و اندازهٔ جواب را بررسی کن.',careless:'پس از جای‌گذاری، یکاها و توان‌های ده را جداگانه کنترل کن؛ جواب نهایی را از نظر بزرگی تخمین بزن.',concept:'پیش از فرمول، وضعیت مسئله را با شکل و جهت‌ها رسم کن و با زبان خودت توضیح بده چه قانونی کاربرد دارد.',time:'ابتدا سؤال‌هایی را حل کن که رابطه و داده‌هایشان روشن است؛ محاسبات چندمرحله‌ای را برای دور دوم نگه دار.',misread:'داده‌ها، یکاها و مجهول را قبل از انتخاب فرمول بنویس؛ به کلمات شرطی و جهت حرکت دقت کن.',guess:'با تحلیل یکا و حدود منطقی جواب، گزینه‌ها را محدود کن؛ حدس بدون بررسی را به دور دوم موکول کن.'},
+ chemistry:{foundation:'تعریف‌ها و الگوهای اصلی مبحث را در یک برگه خلاصه کن؛ بعد مثال‌های کتاب را بدون نگاه به پاسخ حل کن.',practice:'تمرین را بین مفهومی و محاسباتی تقسیم کن؛ در محاسبات، نسبت‌ها و واحدها را هر مرحله کنترل کن.',decline:'سؤال‌های اخیر را به دو دستهٔ مفهومی و محاسباتی تقسیم کن و همان دسته‌ای را که بیشتر خطا داشته، هدف بگیر.',maintain:'یک دور مرور فعال از نکته‌ها انجام بده و بعد چند سؤال ترکیبی از فصل‌های قبلی حل کن.',careless:'ضرایب، زیروندها، بارها و واحدها را پیش از ثبت پاسخ جداگانه کنترل کن.',concept:'ارتباط علت و معلول واکنش‌ها و روندها را توضیح بده؛ حفظ‌کردن جمله‌ها را با حل سؤال مفهومی کامل کن.',time:'سؤال‌های مفهومی کوتاه را دور اول پاسخ بده و محاسبات چندمرحله‌ای را برای دور دوم نگه دار.',misread:'شرایط واکنش، واحدها و عبارت‌های استثنا را روی صورت سؤال مشخص کن؛ بعد گزینه‌ها را بسنج.',guess:'گزینه‌ها را با قانون یا شاهد مشخص حذف کن و برای نکته‌ای که یادت نیست، پس از آزمون مرور کوتاه داشته باش.'},
+ biology:{foundation:'متن کتاب را بخش‌بخش بخوان و هر بخش را با کتاب بسته در ۳ نکته بازگو کن؛ سپس شکل‌ها و توضیح‌هایشان را بازیابی کن.',practice:'روی شکل‌ها، ترتیب فرایندها و مقایسهٔ مفاهیم نزدیک کار کن؛ از خودت سؤال بساز و بدون نگاه‌کردن جواب بده.',decline:'غلط‌های آزمون اخیر را به «متن کتاب»، «شکل/فرایند» و «مقایسهٔ مفاهیم» تقسیم کن و فقط دستهٔ پرتکرار را هدف بگیر.',maintain:'مرور بازیابی فعال از شکل‌ها و قیدهای متن داشته باش و با تست‌های ترکیبی، تفاوت مفاهیم شبیه را محک بزن.',careless:'قیدها، استثناها و کمیت‌هایی مثل «همه/برخی» را در صورت سؤال مشخص کن و گزینه را با متن تطبیق بده.',concept:'برای هر فرایند یک نمودار پیکانی بساز و تفاوت مفاهیم نزدیک را در جدول دو‌ستونی بنویس.',time:'ابتدا سؤال‌های مستقیم‌تر را جواب بده؛ روی گزینه‌های طولانی در دور اول بیش از حد مکث نکن.',misread:'قیدها و واژه‌های مطلق را خط بکش و مشخص کن سؤال دربارهٔ کدام جاندار، بخش یا مرحله است.',guess:'گزینه‌ها را با جمله یا شکل مشخصی از کتاب رد یا تأیید کن؛ سؤالِ فاقد شاهد را نشان‌دار کن.'},
+ science:{foundation:'مفهوم درس را با یک شکل یا مثال روزمره توضیح بده؛ سپس چند پرسش ساده و یک سؤال کاربردی حل کن.',practice:'تمرین را بین فهم مفاهیم، خواندن شکل‌ها و حل پرسش‌های کاربردی تقسیم کن؛ فقط پاسخ نهایی را حفظ نکن.',decline:'مشخص کن افت اخیر بیشتر در تعریف‌ها، شکل‌ها یا مسئله‌ها بوده و یک مجموعهٔ کوتاه فقط از همان بخش بزن.',maintain:'مرور فعال نکته‌ها و شکل‌ها را با ۱۰ سؤال ترکیبی زمان‌دار همراه کن.',careless:'قبل از انتخاب گزینه، داده و واحد را با خواسته تطبیق بده و پاسخ را یک بار تخمین بزن.',concept:'مفهوم را با شکل و توضیح خودت بازسازی کن؛ بعد مسئله‌ای حل کن که همان مفهوم را در موقعیت جدید می‌سنجد.',time:'اول سؤال‌های مفهومی کوتاه، سپس مسئله‌های چندمرحله‌ای؛ زمان هر بخش را از قبل تعیین کن.',misread:'کلمات کلیدی، واحدها و شرط‌های آزمایش را مشخص کن و بعد سراغ گزینه‌ها برو.',guess:'برای هر گزینه یک دلیل علمی پیدا کن؛ اگر نداری، آن را برای مرور پس از آزمون علامت بزن.'},
+ persian:{foundation:'هر روز یک بخش کوتاه از متن یا دستور زبان را بخوان؛ معنی واژه‌ها را در جمله یاد بگیر و با مثال خودت بازسازی کن.',practice:'تمرین را جداگانه روی معنی و آرایه، دستور زبان و املا انجام بده؛ بعد یک مجموعهٔ ترکیبی حل کن.',decline:'غلط‌های اخیر را به معنی واژه، دستور، آرایه یا املا دسته‌بندی کن و روی همان مهارت ۱۰ تمرین کوتاه بزن.',maintain:'مرور فاصله‌دار واژه‌ها و نکته‌های دستوری را ادامه بده و یک متن تازه را از نظر معنی و دستور تحلیل کن.',careless:'پیش از پاسخ، به کلمهٔ دقیق، نقش آن در جمله و تفاوت گزینه‌های نزدیک توجه کن.',concept:'قاعده را با یک مثال از متن کتاب یاد بگیر و خودت دو مثال تازه بساز؛ فقط تعریف را حفظ نکن.',time:'اول سؤال‌های مستقیم‌تر را جواب بده؛ برای معنی و آرایه، متن را با توجه به قرینه‌های جمله بخوان.',misread:'صورت سؤال را تا انتها بخوان و مشخص کن سؤال معنی، نقش دستوری، آرایه یا املای کدام واژه را می‌خواهد.',guess:'برای گزینهٔ انتخابی، شاهدی از متن یا قاعدهٔ دستوری پیدا کن؛ تفاوت ظریف گزینه‌ها را مقایسه کن.'},
+ arabic:{foundation:'روزانه واژه‌های یک درس را با معنی و یک مثال مرور کن؛ بعد فعل و نقش‌های پایه را در چند جمله پیدا کن.',practice:'ترجمه، صرف فعل و قواعد را در نوبت‌های جدا تمرین کن؛ سپس سؤال‌های ترکیبی کتاب حل کن.',decline:'غلط‌های اخیر را بین واژگان، ترجمه و قواعد جدا کن و همان بخش را با مثال‌های تازه تمرین کن.',maintain:'واژگان را با مرور فاصله‌دار حفظ کن و هر بار چند جملهٔ تازه را ترجمه و تحلیل صرفی کن.',careless:'پایان فعل، ضمیر متصل، منفی‌بودن و مفرد/جمع را قبل از نهایی‌کردن ترجمه بررسی کن.',concept:'قاعده را روی چند جمله علامت‌گذاری کن؛ نقش کلمه و دلیل انتخاب حرکت یا ترجمه را توضیح بده.',time:'ابتدا ترجمه‌های روشن و قواعد آشنا را پاسخ بده؛ سؤال‌های دارای چند مرحلهٔ تحلیل را برای دور دوم بگذار.',misread:'فاعل، فعل، ضمیرها و کلمات پرسشی را در جمله مشخص کن و بعد معنی روان بساز.',guess:'از تطبیق فعل و فاعل و نشانه‌های صرفی برای حذف گزینه‌ها استفاده کن؛ حدس لغوی را با ساختار جمله بسنج.'},
+ english:{foundation:'هر روز ۸ تا ۱۰ واژه را در جمله یاد بگیر؛ سپس یک قاعده را با چند جملهٔ کوتاه خودت به کار ببر.',practice:'برای واژگان، گرامر و درک مطلب نوبت‌های جدا داشته باش؛ پایان کار یک تمرین ترکیبی کوتاه حل کن.',decline:'اشتباه‌های اخیر را به واژگان، گرامر و فهم متن تقسیم کن و فقط بخش پرتکرار را با مثال جدید تمرین کن.',maintain:'مرور فاصله‌دار واژگان و یک متن کوتاه همراه با چند سؤال درک مطلب را در برنامه نگه دار.',careless:'زمان فعل، فاعل، جمع/مفرد و کلمات منفی مثل never/not را قبل از انتخاب بررسی کن.',concept:'به جای حفظ فرمول گرامر، سه جملهٔ درست و یک جملهٔ غلط بساز و علت تفاوتشان را توضیح بده.',time:'ابتدا سؤال‌های واژگان و گرامر کوتاه را جواب بده؛ درک مطلب طولانی را با یافتن کلیدواژه‌ها پیش ببر.',misread:'در متن به ضمیرها، قیدهای زمان و کلمات منفی دقت کن؛ سؤال را با همان جملهٔ متن تطبیق بده.',guess:'از نقش دستوری، هم‌نشینی واژه‌ها و نشانه‌های جمله برای حذف گزینه‌ها استفاده کن.'},
+ social:{foundation:'هر مبحث را به ۵ پرسش و پاسخ تبدیل کن؛ برای تاریخ از خط زمان و برای جغرافیا از نقشه استفاده کن.',practice:'به جای بازخوانی چندباره، کتاب را ببند و علت‌ها، پیامدها، مکان‌ها و تفاوت مفاهیم را از حافظه توضیح بده.',decline:'غلط‌های اخیر را به زمان/ترتیب، علت‌ومعلول، نقشه یا تعریف‌ها تقسیم کن و همان نوع را با پرسش‌های بازیابی تمرین کن.',maintain:'یک مرور بازیابی از نکته‌ها داشته باش و بعد سؤال‌های مقایسه‌ای و ترکیبی حل کن.',careless:'اسم‌ها، تاریخ‌ها، مکان‌ها و واژه‌های «علت/نتیجه» را در صورت سؤال مشخص کن.',concept:'برای هر موضوع زنجیرهٔ علت ← رویداد ← پیامد یا جدول مقایسه بساز؛ حفظ جمله‌ها کافی نیست.',time:'در دور اول سؤال‌های مستقیم را پاسخ بده؛ پاسخ‌های تشریحی را با چند کلمهٔ کلیدی منظم کن.',misread:'مشخص کن سؤال علت، پیامد، زمان، مکان یا مقایسه می‌خواهد و پاسخ را فقط در همان چارچوب بده.',guess:'گزینه‌ها را با نقشه، خط زمان یا رابطهٔ علت‌ومعلولی بررسی کن؛ شباهت ظاهری واژه‌ها را ملاک نگذار.'},
+ religion:{foundation:'هر عنوان را با پیام اصلی و یک شاهد کوتاه مرور کن؛ سپس با کتاب بسته مفهوم را با زبان خودت بگو.',practice:'آیه/حدیث، مفهوم و نتیجهٔ موردنظر را به هم وصل کن؛ بعد سؤال‌های کاربردی و مقایسه‌ای پاسخ بده.',decline:'غلط‌های اخیر را از نظر معنی عبارت، مفهوم پیام و کاربرد آن جدا کن و روی نوع پرتکرار تمرین کن.',maintain:'مرور پرسش‌وپاسخ با کتاب بسته انجام بده و ارتباط آیات و مفاهیم مشابه را مقایسه کن.',careless:'به کلمات کلیدی پیام و تفاوت گزینه‌هایی که فقط یک قیدشان فرق دارد توجه کن.',concept:'پیام هر متن را با یک جمله توضیح بده و یک نمونه از کاربرد آن بساز؛ عبارت را بدون فهم حفظ نکن.',time:'ابتدا سؤال‌های مفهومی روشن را پاسخ بده و برای گزینه‌های نزدیک به پیام، کلمات کلیدی را مقایسه کن.',misread:'دقیقاً مشخص کن سؤال معنی عبارت، پیام یا مصداق می‌خواهد؛ این سه را با هم اشتباه نگیر.',guess:'گزینه را با پیام اصلی و واژه‌های متن تطبیق بده و گزینه‌های دارای ادعای اضافه را دوباره بررسی کن.'},
+ aptitude:{foundation:'از نمونهٔ حل‌شده شروع کن و الگوی کشف‌شده را با یک مثال مشابه توضیح بده؛ سپس بدون زمان تمرین کن.',practice:'تمرین را بر اساس نوع سؤال جدا کن؛ برای هر نوع چند نمونه بزن و راه‌حل کوتاه و قابل‌تکرار پیدا کن.',decline:'سؤال‌های غلط را بر اساس نوع الگو گروه‌بندی کن و فقط پرتکرارترین الگو را در یک تمرین کوتاه تقویت کن.',maintain:'چند سؤال متنوع زمان‌دار بزن و پس از آن روش سریع‌تر را با روش مطمئن خودت مقایسه کن.',careless:'قبل از انتخاب، تعداد شکل‌ها، جهت‌ها، ترتیب و شرط‌های الگو را دوباره بررسی کن.',concept:'به جای حفظ پاسخ نمونه، قانون الگو را بیان کن و بررسی کن آیا در همهٔ اجزا برقرار است.',time:'برای هر سؤال سقف زمان تعیین کن؛ اگر الگو سریع پیدا نشد، نشان‌دار کن و سراغ بعدی برو.',misread:'شرط‌های همهٔ مراحل و شکل‌ها را یکی‌یکی بررسی کن؛ یک تغییر کوچک ممکن است قانون الگو را عوض کند.',guess:'دو گزینه را با آزمون الگو رد کن و فقط وقتی قانون را در تمام اجزا دیدی پاسخ بده.'},
+ general:{foundation:'مبحث‌های پایه را به بخش‌های کوچک تقسیم کن؛ هر بخش را با کتاب بسته توضیح بده و سپس چند سؤال آموزشی حل کن.',practice:'یک تمرین کوتاه و متمرکز از مبحث‌های ضعیف انجام بده و بلافاصله سؤال‌های مشابه را بدون نگاه به پاسخ حل کن.',decline:'سؤال‌های غلط آخرین آزمون را دوباره حل کن و ببین کدام مبحث یا مرحله بیشترین توقف را ایجاد کرده است.',maintain:'مرور فاصله‌دار نکته‌ها را با یک آزمونک ترکیبی کوتاه ادامه بده.',careless:'پیش از ثبت پاسخ، صورت سؤال، محاسبه و گزینهٔ انتخابی را یک بار کنترل کن.',concept:'مفهوم را با زبان خودت توضیح بده و بعد یک مثال جدید حل کن تا مطمئن شوی فقط پاسخ را حفظ نکرده‌ای.',time:'برای هر بخش زمان تعیین کن؛ سؤال‌های وقت‌گیر را نشان‌دار کن و در دور دوم به آن‌ها برگرد.',misread:'خواستهٔ سؤال و کلمات کلیدی را مشخص کن و پاسخ را دقیقاً با همان خواسته تطبیق بده.',guess:'قبل از انتخاب نهایی، دلیل رد گزینه‌های دیگر را روشن کن؛ سؤال‌های مبهم را برای مرور نگه دار.'}
+};
+function studyRecommendation(name,stats){
+  const kind=subjectKind(name),book=STUDY_PLAYBOOK[kind]||STUDY_PLAYBOOK.general;
+  let priority='تمرین هدفمند',tone='';
+  if(stats.avg<40){priority='تقویت پایه';tone='alert'}
+  else if(stats.d<=-10){priority='افت اخیر';tone='alert'}
+  else if(stats.blankRate>=.28){priority='مدیریت زمان';tone='alert'}
+  else if(stats.wrongRate>=.28){priority='افزایش دقت';tone='alert'}
+  else if(stats.avg>=75){priority='تثبیت و پیشرفت';tone='good'}
+  let tip;
+  if(stats.reason!=='none'&&book[stats.reason])tip=book[stats.reason];
+  else if(stats.avg<40)tip=book.foundation;
+  else if(stats.d<=-10)tip=book.decline;
+  else if(stats.blankRate>=.28)tip=book.time;
+  else if(stats.wrongRate>=.28)tip=book.practice;
+  else if(stats.avg>=75)tip=book.maintain;
+  else tip=book.practice;
+  return{tip,priority,tone};
+}
+
+function toast(msg){
+  const el=$('#toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* scoring engine */
+function owners(ex){
+  const n=int(ex.total);const o=new Array(n).fill(-1);
+  (ex.ranges||[]).forEach((r,ri)=>{
+    const f=Math.max(1,int(r.from)),to=Math.min(n,int(r.to));
+    for(let q=f;q<=to;q++)if(o[q-1]<0)o[q-1]=ri;
+  });
+  return o;
+}
+function compute(ex){
+  const pen=+ex.penalty||0;let groups=[];
+  if(ex.mode==='detail'){
+    const n=int(ex.total),o=owners(ex);
+    groups=(ex.ranges||[]).map(r=>({name:(r.name||'').trim()||'—',coef:coefValue(r.coef),n:0,c:0,w:0,b:0}));
+    const other={name:t('other'),coef:1,n:0,c:0,w:0,b:0};
+    for(let i=0;i<n;i++){
+      const a=(ex.answers||[])[i]||{s:'b'};
+      const g=o[i]>=0?groups[o[i]]:other;
+      g.n++;g[a.s]++;
+    }
+    groups=groups.filter(g=>g.n>0);if(other.n)groups.push(other);
+  }else{
+    groups=(ex.subjects||[]).map(s=>{
+      const n=int(s.count),c=int(s.c),w=int(s.w);
+      return{name:(s.name||'').trim()||'—',coef:coefValue(s.coef),n,c,w,b:Math.max(0,n-c-w)};
+    }).filter(g=>g.n>0);
+  }
+  const tot={n:0,c:0,w:0,b:0};
+  groups.forEach(g=>{tot.n+=g.n;tot.c+=g.c;tot.w+=g.w;tot.b+=g.b});
+  const p=g=>g.n?((g.c-g.w*pen)/g.n)*100:0;
+  groups.forEach(g=>{g.pct=p(g);g.pctNoPenalty=g.n?(g.c/g.n)*100:0});
+  // Weight each subject's percentage by its coefficient; empty coefficients default to 1.
+  const weighted=(noPenalty=false)=>{
+    const denom=groups.reduce((sum,g)=>sum+g.coef,0);
+    const numer=groups.reduce((sum,g)=>sum+((noPenalty?g.pctNoPenalty:g.pct)*g.coef),0);
+    return denom>0?numer/denom:0;
+  };
+  tot.pct=weighted(false);
+  tot.pctNoPenalty=weighted(true);
+  tot.groups=groups;
+  return tot;
+}
+function subjectOf(ex,i){const o=owners(ex);return o[i]>=0?((ex.ranges[o[i]].name||'').trim()||'—'):t('other')}
+const sortedExams=()=>[...S.exams].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0));
+
+function updateTheme(){
+  document.documentElement.setAttribute('data-theme',S.settings.theme);
+  const btn=$('#theme-btn');
+  if(btn)btn.textContent=S.settings.theme==='dark'?'☀️':'🌙';
+}
+
+function renderHeader(){
+  document.documentElement.lang=S.settings.lang;
+  document.documentElement.dir=L().dir;
+  document.title=t('app');
+  $('#brand-title').textContent=t('app');
+  updateTheme();
+  const cur=view==='edit'?'new':view;
+  $('#nav').innerHTML=[['dash','nav_dash'],['new','nav_new'],['errors','nav_err'],['settings','nav_set']].map(([v,k])=>`<button data-nav="${v}" class="${cur===v?'on':''}">${t(k)}</button>`).join('');
+  $('#lang').innerHTML=Object.entries(LANGS).map(([k,v])=>`<option value="${k}" ${k===S.settings.lang?'selected':''}>${v.label}</option>`).join('');
+}
+
+function render(){
+  renderHeader();
+  if(chart){chart.destroy();chart=null}
+  if(examChart){examChart.destroy();examChart=null}
+  main.innerHTML=view==='edit'?renderEditor():view==='errors'?renderErrors():view==='settings'?renderSettings():renderDash();
+  if(view==='dash'&&S.exams.length){drawChart();drawExamChart();}
+  if(view==='edit')updateLive();
+  window.scrollTo({top:0});
+}
+
+/* dashboard view */
+function subjectNames(){
+  const set=new Set();
+  S.exams.forEach(e=>{const g=compute(e).groups;if(g.length>1)g.forEach(x=>set.add(x.name))});
+  return[...set];
+}
+function renderDash(){
+  if(!S.exams.length){
+    return`<section class="empty">
+      <div class="empty-icon">📊</div>
+      <h1>${t('empty_title')}</h1>
+      <p class="hint">${t('empty_body')}</p>
+      <button class="btn primary" data-nav="new" style="margin-top:12px">${t('nav_new')}</button>
+    </section>`;
+  }
+  const ex=sortedExams(),res=ex.map(e=>compute(e)),ps=res.map(r=>r.pct);
+  const avg=ps.reduce((a,b)=>a+b,0)/ps.length,best=Math.max(...ps),last=ps[ps.length-1],delta=ps.length>1?last-ps[ps.length-2]:null;
+  const subs=subjectNames();
+
+  const bySub={};
+  ex.forEach((e,i)=>{
+    const g=res[i].groups;
+    if(g.length>1)g.forEach(x=>{(bySub[x.name]=bySub[x.name]||[]).push(x.pct)});
+  });
+  const weak=Object.entries(bySub).map(([k,a])=>{
+    const recent=a.slice(-5);let wrong=0,blank=0,questions=0,seen=0,reasonCounts={};
+    ex.slice(-5).forEach(e=>{
+      const gs=compute(e).groups.find(g=>g.name===k);
+      if(gs){wrong+=gs.w;blank+=gs.b;questions+=gs.n;seen++;}
+      if(e.mode==='detail')e.answers.forEach((ans,i)=>{if(subjectOf(e,i)===k&&ans.s==='w'){const rr=ans.r||'none';reasonCounts[rr]=(reasonCounts[rr]||0)+1;}});
+    });
+    const topReason=Object.entries(reasonCounts).sort((x,y)=>y[1]-x[1])[0];
+    const reason=topReason&&topReason[1]>=2?topReason[0]:'none';
+    const avg=recent.reduce((sum,v)=>sum+v,0)/Math.max(1,recent.length);
+    const d=a.length>1?a[a.length-1]-a[a.length-2]:0;
+    const rec=studyRecommendation(k,{avg,d,wrongRate:questions?wrong/questions:0,blankRate:questions?blank/questions:0,reason});
+    return{k,avg,d,wrong,blank,questions,seen,reason,tip:rec.tip,priority:rec.priority,tone:rec.tone};
+  }).sort((a,b)=>a.avg-b.avg);
+
+  const list=[...ex].reverse();
+  return`<div class="dash-head">
+      <div><p class="eyebrow">${t('exams_n',{n:nf(ex.length)})}</p><h1>${t('nav_dash')}</h1></div>
+      <div class="row dash-actions"><button class="btn sm ghost" data-a="toggle-panels">${allPanelsCollapsed()?'بازکردن همه کادرها':'بستن همه کادرها'}</button><button class="btn primary" data-nav="new">${t('nav_new')}</button></div>
+    </div>
+    <div class="stat-cards">
+      <div class="sc"><dt>${t('last')}</dt><dd>${pctf(last)}</dd>${delta!=null?`<span class="delta ${delta>=0?'up':'down'}">${sgn(delta)} ${t('trend')}</span>`:''}</div>
+      <div class="sc"><dt>${t('avg')}</dt><dd>${pctf(avg)}</dd><span class="hint">${nf(ex.length)} آزمون</span></div>
+      <div class="sc"><dt>${t('best')}</dt><dd style="color:var(--ok)">${pctf(best)}</dd><span class="hint">رکورد ثبت‌شده</span></div>
+      <div class="sc"><dt>${t('goal')}</dt><dd style="color:var(--gold)">${pctf(S.settings.goal)}</dd><span class="hint">${last>=S.settings.goal?'هدف محقق شد 🎉':'در حال تلاش'}</span></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-top"><div><h2>نمودار پیوسته عملکرد و پیشرفت</h2><span class="hint">خط هدف و روند درصد کل در یک نگاه</span></div>${collapseButton('trend')}</div>
+      <div class="panel-content" id="trend-content" ${collapsedPanels.has('trend')?'hidden':''}>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
+        ${subs.length?`<div class="chips"><span class="lbl" style="font-size:.85rem;color:var(--ink2)">${t('subjects_on_chart')}</span>${subs.map(s=>`<button class="chip ${chartSubs.has(s)?'on':''}" data-csub="${esc(s)}">${esc(s)}</button>`).join('')}</div>`:''}
+      </div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-top"><div><h2>تحلیل جداگانه هر آزمون</h2><p class="hint">ستون‌های نئونی درصد هر درس‌اند؛ خط روی آن‌ها مقایسه را خواناتر می‌کند.</p></div>
+        <div class="subject-chart-tools"><select id="exam-chart-select" aria-label="انتخاب آزمون">${[...ex].reverse().map(e=>`<option value="${e.id}">${esc(e.name)} · ${dateF(e.date)}</option>`).join('')}</select>${collapseButton('subject')}</div>
+      </div>
+      <div class="panel-content" id="subject-content" ${collapsedPanels.has('subject')?'hidden':''}>
+        <div class="chart-wrap"><canvas id="exam-chart"></canvas></div>
+        <p class="chart-footnote">برای دیدن تعداد پاسخ‌های درست، غلط و نزده، نشانگر را روی ستون هر درس نگه دار.</p>
+      </div>
+    </div>
+    <div class="dash-cols">
+      <section class="history-panel">
+        <div class="dashboard-section-head"><h2>${t('history')}</h2>${collapseButton('history')}</div>
+        <div class="panel-content" id="history-content" ${collapsedPanels.has('history')?'hidden':''}>
+          <div class="exam-list">${list.map(e=>renderExamRow(e)).join('')}</div>
+        </div>
+      </section>
+      ${weak.length?`<aside class="weak-box">
+        <div class="study-top"><div><h2>${t('weak')}</h2><p class="hint" style="margin-top:4px">بر پایهٔ میانگین، تغییر اخیر، غلط‌ها و سؤال‌های نزده</p></div>${collapseButton('study')}</div>
+        <div class="panel-content" id="study-content" ${collapsedPanels.has('study')?'hidden':''}>
+          <ul class="weak">${weak.map(w=>`<li class="study-item"><div class="study-item-top"><div class="study-title"><span>${esc(w.k)}</span><span class="study-tag ${w.tone}">${w.priority}</span></div><b>${pctf(w.avg)}${w.d?` <small class="${w.d>0?'up':'down'}">${w.d>0?'▲':'▼'}${nf(Math.abs(w.d),0)}</small>`:''}</b></div><div class="thin"><span style="width:${clamp(w.avg)}%"></span></div><div class="study-metrics"><span>${nf(w.wrong)} غلط</span><span>${nf(w.blank)} نزده</span><span>${nf(w.seen)} آزمون اخیر</span>${w.reason!=='none'?`<span>الگوی پرتکرار: ${t('r_'+w.reason)}</span>`:''}</div><p class="study-tip"><b>گام پیشنهادی:</b> ${w.tip}</p></li>`).join('')}</ul>
+        </div>
+      </aside>`:''}
+    </div>`;
+}
+
+function renderExamRow(e){
+  const r=compute(e),n=r.n||1,open=openId===e.id;
+  const meta=[e.rank?`${t('rank')} ${esc(e.rank)}`:'',e.level?`${t('level')} ${esc(e.level)}`:''].filter(Boolean).join(' · ');
+  let body='';
+  if(open){
+    const cf=counterfactualOpen.has(e.id);
+    body=`<div class="ex-body">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="hint">${cf?'سناریوی فرضی: همه پاسخ‌های غلط به نزده تبدیل شده‌اند.':'می‌توانی اثر نمره منفی را برای هر درس بررسی کنی.'}</span><button class="btn sm ${cf?'primary':'ghost'}" data-a="counterfactual" data-id="${e.id}">${cf?'پنهان کردن محاسبه':'اگر غلط‌ها را نزده بودم؟'}</button></div>
+      <div class="bd"><div class="bd-row h ${cf?'cf':''}"><span>${t('subject')}</span><span>${t('correct')}</span><span>${t('wrong')}</span><span>${t('blank')}</span><b>درصد واقعی</b>${cf?'<b>بدون غلط‌زدن</b>':''}</div>
+      ${r.groups.map(g=>`<div class="bd-row ${cf?'cf':''}"><span>${esc(g.name)}</span><span class="c">${nf(g.c)}</span><span class="w">${nf(g.w)}</span><span class="b">${nf(g.b)}</span><b>${pctf(g.pct)}</b>${cf?`<b style="color:var(--ok)">${pctf(g.n?g.c/g.n*100:0)}</b>`:''}</div>`).join('')}
+      ${r.groups.length>1?`<div class="bd-row ${cf?'cf':''}" style="font-weight:800;background:var(--surface-hi)"><span>${t('total_line')}</span><span class="c">${nf(r.c)}</span><span class="w">${nf(r.w)}</span><span class="b">${nf(r.b)}</span><b>${pctf(r.pct)}</b>${cf?`<b style="color:var(--ok)">${pctf(r.pctNoPenalty)}</b>`:''}</div>`:''}</div>
+      ${e.mode==='detail'?`<div class="strip">${e.answers.slice(0,e.total).map((a,i)=>`<i class="${a.s==='b'?'':a.s} ${a.f?'f':''}" title="${nf(i+1)}"></i>`).join('')}</div>`:''}
+      <div class="field"><label>${t('note')}</label><textarea data-enote="${e.id}" placeholder="${t('note_ph')}">${esc(e.note||'')}</textarea></div>
+      <div class="row"><button class="btn sm" data-a="edit" data-id="${e.id}">${t('edit')}</button>${e.mode==='detail'?`<button class="btn sm ghost" data-nav="errors">${t('open_err')}</button>`:''}<button class="btn sm danger" data-a="del" data-id="${e.id}" style="margin-inline-start:auto">${t('del')}</button></div>
+    </div>`;
+  }
+  return`<article class="ex ${open?'open':''}"><button class="ex-head" data-open="${e.id}" aria-expanded="${open}">
+    <span class="ex-date">${dateF(e.date)}</span>
+    <span class="ex-name">${esc(e.name)}${meta?`<small>${meta}</small>`:''}</span>
+    <span class="stack"><span class="c" style="width:${r.c/n*100}%"></span><span class="w" style="width:${r.w/n*100}%"></span></span>
+    <span class="ex-pct ${r.pct<0?'neg':''}">${pctf(r.pct)}</span><span class="chev">▾</span></button>${body}</article>`;
+}
+
+function drawChart(){
+  const cv=$('#chart');if(!cv||!window.Chart)return;
+  const rtl=L().dir==='rtl',ex=sortedExams(),res=ex.map(compute);
+  const isDark=S.settings.theme==='dark';
+  Chart.defaults.font.family='Vazirmatn, system-ui, sans-serif';
+  Chart.defaults.color=isDark?'#a2a2bd':'#64647a';
+  const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+  const pal=['#10b981','#f43f5e','#f59e0b','#06b6d4','#8b5cf6','#ec4899','#3b82f6'];
+
+  const ds=[{
+    label:t('total_line'),
+    data:res.map(r=>+r.pct.toFixed(1)),
+    borderColor:'#818cf8',
+    backgroundColor:isDark?'rgba(129,140,248,0.15)':'rgba(99,102,241,0.12)',
+    fill:true,
+    tension:.36,
+    borderWidth:3,
+    pointRadius:5,
+    pointHoverRadius:8,
+    pointBackgroundColor:'#818cf8',
+    pointBorderColor:isDark?'#181826':'#fff',
+    pointBorderWidth:2
+  },{
+    label:t('goal'),
+    data:ex.map(()=>+S.settings.goal),
+    borderColor:'#fbbf24',
+    borderDash:[6,6],
+    borderWidth:2,
+    pointRadius:0,
+    fill:false
+  }];
+
+  [...chartSubs].forEach((s,i)=>{
+    ds.push({
+      label:s,
+      data:res.map(r=>{const g=r.groups.find(x=>x.name===s);return g&&r.groups.length>1?+g.pct.toFixed(1):null}),
+      borderColor:pal[i%pal.length],
+      backgroundColor:pal[i%pal.length],
+      borderWidth:2,
+      pointRadius:3.5,
+      tension:.3,
+      spanGaps:true,
+      fill:false
+    });
+  });
+
+  const lo=Math.min(0,...res.map(r=>r.pct));
+  chart=new Chart(cv,{
+    type:'line',
+    data:{labels:ex.map(e=>dateF(e.date,true)),datasets:ds},
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      animation:{duration:700,easing:'easeOutQuart'},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:chartSubs.size>0,rtl,align:'start',labels:{usePointStyle:true,boxWidth:8,padding:16}},
+        tooltip:{
+          rtl,
+          backgroundColor:isDark?'#232338':'#1e1e2d',
+          titleColor:'#fff',
+          bodyColor:'#e2e8f0',
+          padding:14,
+          cornerRadius:10,
+          borderColor:isDark?'#3f3f5a':'#cbd5e1',
+          borderWidth:1,
+          callbacks:{
+            title:it=>{const e=ex[it[0].dataIndex];return`${e.name} · ${dateF(e.date)}`},
+            label:c=>c.raw==null?null:` ${c.dataset.label}: ${pctf(c.raw)}`
+          }
+        }
+      },
+      scales:{
+        x:{reverse:rtl,grid:{display:false},ticks:{maxRotation:0,autoSkipPadding:16}},
+        y:{
+          position:rtl?'right':'left',
+          min:Math.floor(lo/10)*10,
+          suggestedMax:100,
+          grid:{color:gridColor},
+          ticks:{callback:v=>nf(v)+(S.settings.lang==='en'?'%':'٪')}
+        }
+      }
+    }
+  });
+}
+
+
+function drawExamChart(){
+  const cv=$('#exam-chart');if(!cv||!window.Chart)return;
+  const sel=$('#exam-chart-select');const e=S.exams.find(x=>x.id===(sel&&sel.value))||[...sortedExams()].pop();if(!e)return;
+  const r=compute(e),isDark=S.settings.theme==='dark',rtl=L().dir==='rtl';
+  const labels=r.groups.map(g=>g.name),vals=r.groups.map(g=>+g.pct.toFixed(1));
+  const colors=['#a78bfa','#22d3ee','#34d399','#60a5fa','#f472b6','#fbbf24','#818cf8','#fb7185','#2dd4bf'];
+  Chart.defaults.font.family='Vazirmatn, system-ui, sans-serif';Chart.defaults.color=isDark?'#a2a2bd':'#64647a';
+  const gridColor=isDark?'rgba(255,255,255,0.065)':'rgba(32,32,64,0.075)';
+  const rgba=(hex,a)=>{const h=hex.replace('#','');return `rgba(${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)},${a})`};
+  const neonGlow={id:'neonSubjectGlow',beforeDatasetDraw(chart,args){const ctx=chart.ctx;ctx.save();if(args.meta.type==='bar'){ctx.shadowBlur=isDark?17:9;ctx.shadowColor=colors[0]}else if(args.meta.type==='line'){ctx.shadowBlur=isDark?12:6;ctx.shadowColor='#a78bfa'}},afterDatasetDraw(chart,args){chart.ctx.restore()}};
+  examChart=new Chart(cv,{
+    type:'bar',
+    data:{labels,datasets:[
+      {type:'bar',label:'درصد درس',data:vals,
+        backgroundColor:ctx=>{const color=colors[ctx.dataIndex%colors.length],area=ctx.chart.chartArea;if(!area)return rgba(color,isDark ? .55 : .28);const g=ctx.chart.ctx.createLinearGradient(0,area.bottom,0,area.top);g.addColorStop(0,rgba(color,isDark ? .10 : .06));g.addColorStop(.5,rgba(color,isDark ? .28 : .15));g.addColorStop(1,rgba(color,isDark ? .62 : .34));return g},
+        borderColor:ctx=>colors[ctx.dataIndex%colors.length],borderWidth:1.8,borderRadius:8,borderSkipped:false,maxBarThickness:48,categoryPercentage:.72,barPercentage:.76,hoverBorderWidth:2.5},
+      {type:'line',label:'روند درصد',data:vals,borderColor:isDark?'#c4b5fd':'#7c3aed',backgroundColor:'transparent',borderWidth:2.5,tension:.32,fill:false,pointRadius:4,pointHoverRadius:6,pointBackgroundColor:colors.map((_,i)=>colors[i%colors.length]),pointBorderColor:isDark?'#171724':'#fff',pointBorderWidth:2,spanGaps:true}
+    ]},
+    plugins:[neonGlow],
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeOutQuart'},interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{rtl,backgroundColor:isDark?'#232338':'#1e1e2d',titleColor:'#fff',bodyColor:'#e2e8f0',padding:13,cornerRadius:10,borderColor:isDark?'#4c4774':'#a78bfa',borderWidth:1,filter:item=>item.dataset.type==='bar',callbacks:{
+        title:items=>labels[items[0].dataIndex],
+        label:item=>` درصد خالص: ${pctf(item.raw)}`,
+        afterBody:items=>{const g=r.groups[items[0].dataIndex];return [`درست: ${nf(g.c)}   |   غلط: ${nf(g.w)}   |   نزده: ${nf(g.b)}`]}
+      }}},
+      scales:{x:{reverse:rtl,grid:{display:false},border:{display:false},ticks:{maxRotation:0,minRotation:0,autoSkip:true,autoSkipPadding:14,color:isDark?'#b6b6cc':'#64647a'}},
+        y:{position:rtl?'right':'left',min:Math.min(0,...vals),suggestedMax:100,grid:{color:gridColor,drawTicks:false},border:{display:false},ticks:{stepSize:20,padding:9,color:isDark?'#a2a2bd':'#64647a',callback:v=>nf(v)+(S.settings.lang==='en'?'%':'٪')}}}
+    }
+  });
+}
+
+/* editor logic */
+function newDraft(){return{id:null,name:'',date:today(),total:'',mode:'overall',penalty:+S.settings.penalty,subjects:[{name:t('whole'),count:'',c:'',w:'',coef:1}],ranges:[{name:'',from:1,to:'',coef:1}],answers:[],note:'',rank:'',level:''}}
+function draftFrom(e){
+  const d=clone(e);d.total=String(e.total);
+  if(!d.subjects||!d.subjects.length)d.subjects=[{name:t('whole'),count:String(e.total),c:'',w:''}];
+  if(!d.ranges||!d.ranges.length)d.ranges=[{name:'',from:1,to:e.total}];
+  if(!d.answers)d.answers=[];while(d.answers.length<e.total)d.answers.push({s:'b'});
+  return d;
+}
+function renderEditor(){
+  const d=draft;
+  return`<div class="editor">
+    <div class="ed-main">
+      <div class="row" style="justify-content:space-between">
+        <div><p class="eyebrow">${d.id?t('edit'):t('nav_new')}</p><h1>${d.id?esc(d.name):t('nav_new')}</h1></div>
+        <div class="seg-toggle"><button data-a="mode" data-v="overall" class="${d.mode==='overall'?'on':''}">${t('mode_overall')}</button><button data-a="mode" data-v="detail" class="${d.mode==='detail'?'on':''}">${t('mode_detail')}</button></div>
+      </div>
+      <section class="basics">
+        <div class="field total-field"><label>${t('total')}</label><input data-f="total" inputmode="numeric" value="${esc(d.total)}" placeholder="مثلا ۱۰۰" autocomplete="off"></div>
+        <div class="field name"><label>${t('name')}</label><input data-f="name" value="${esc(d.name)}" placeholder="${t('untitled')} ${dateF(d.date)}"></div>
+        <div class="field"><label>${t('date')}</label><input type="date" data-f="date" value="${esc(d.date)}"></div>
+        <div class="field"><label>${t('penalty')}</label><select data-f="penalty">${PENS.map(p=>`<option value="${p.v}" ${Math.abs(p.v-d.penalty)<.001?'selected':''}>${t(p.k)}</option>`).join('')}</select></div>
+        <div class="field"><label>${t('rank')} <small>(${t('optional')})</small></label><input data-f="rank" value="${esc(d.rank)}" inputmode="numeric"></div>
+        <div class="field"><label>${t('level')} <small>(${t('optional')})</small></label><input data-f="level" value="${esc(d.level)}" inputmode="numeric"></div>
+      </section>
+      <section>
+        <div class="sec-head" style="margin-bottom:14px">
+          <h3>${d.mode==='overall'?'ورود کارنامه‌ای دروس':'تفکیک سؤالات به همراه محدوده'}</h3>
+          <div class="row">${S.templates.length?`<select data-tpl style="width:auto;min-height:36px;padding:4px 10px"><option value="">${t('load_tpl')}</option>${S.templates.map(x=>`<option value="${x.id}">${esc(x.name)} · ${nf(x.total)}</option>`).join('')}</select>`:''}<input id="tplname" placeholder="${t('tpl_ph')}" style="width:160px;min-height:36px;padding:4px 10px"><button class="btn sm ghost" data-a="save-tpl">${t('save_tpl')}</button></div>
+        </div>
+        <div id="entry">${renderEntry()}</div>
+      </section>
+      <section class="field"><label>${t('note')}</label><textarea data-f="note" placeholder="${t('note_ph')}">${esc(d.note)}</textarea></section>
+      <div class="row"><button class="btn primary" data-a="save">${d.id?t('update'):t('save')}</button><button class="btn ghost" data-a="cancel">${t('cancel')}</button></div>
+    </div>
+    <aside class="ed-side" id="result">${renderResult()}</aside>
+  </div>`;
+}
+
+function renderEntry(){
+  const d=draft;
+  if(d.mode==='overall'){
+    return`<div><div class="st-row st-head"><span>${t('subject')}</span><span>${t('count')}</span><span>${t('correct')}</span><span>${t('wrong')}</span><span>${t('blank')}</span><span>ضریب</span><span></span></div>
+      ${d.subjects.map((s,i)=>subRow(s,i)).join('')}</div>
+      <div class="row" style="margin-top:12px"><button class="btn sm" data-a="add-sub">${t('add_subject')}</button><span class="hint">${t('overall_hint')}</span></div>
+      <p id="summsg" class="warn" style="margin-top:8px">${sumMsg()}</p>`;
+  }
+  return`<div><div class="rng-row st-head"><span>${t('subject')}</span><span>${t('from')}</span><span>${t('to')}</span><span>ضریب</span><span></span></div>
+    ${d.ranges.map((r,i)=>`<div class="rng-row"><input data-rng="${i}" data-k="name" value="${esc(r.name)}" placeholder="${t('subject')}"><input data-rng="${i}" data-k="from" inputmode="numeric" value="${esc(r.from)}"><input data-rng="${i}" data-k="to" inputmode="numeric" value="${esc(r.to)}"><input data-rng="${i}" data-k="coef" inputmode="decimal" aria-label="ضریب" title="ضریب درس" value="${esc(r.coef??1)}" style="min-width:0;padding:8px 4px"><button class="btn sm danger" data-a="rm-rng" data-i="${i}" style="padding:0 8px" ${d.ranges.length<2?'disabled style="visibility:hidden"':''}>✕</button></div>`).join('')}
+  </div><button class="btn sm" style="margin-top:8px" data-a="add-range">${t('add_range')}</button>
+  <div class="tools" style="margin-top:16px"><p class="hint">${t('keys_hint')}</p>
+    <div class="quick"><label class="lbl" style="margin:0" for="qfrom">${t('quick')}</label><input id="qfrom" inputmode="numeric" value="1"><input id="qtext" placeholder="${t('quick_ph')}" autocomplete="off" spellcheck="false"><button class="btn sm" data-a="quick">${t('apply')}</button></div></div>
+  <div id="grid">${renderGrid()}</div>`;
+}
+
+function subRow(s,i){
+  const n=int(s.count),c=int(s.c),w=int(s.w),bad=c+w>n;
+  return`<div class="st-row ${bad?'bad':''}" id="sr-${i}"><input data-sub="${i}" data-k="name" value="${esc(s.name)}" placeholder="${t('subject')}"><input data-sub="${i}" data-k="count" inputmode="numeric" value="${esc(s.count)}"><input data-sub="${i}" data-k="c" inputmode="numeric" value="${esc(s.c)}"><input data-sub="${i}" data-k="w" inputmode="numeric" value="${esc(s.w)}"><output id="sb-${i}">${nf(Math.max(0,n-c-w))}</output><input data-sub="${i}" data-k="coef" inputmode="decimal" aria-label="ضریب" title="ضریب درس" value="${esc(s.coef??1)}" style="min-width:0;padding:8px 4px"><button class="btn sm danger" data-a="rm-sub" data-i="${i}" style="padding:0 8px" ${draft.subjects.length<2?'disabled style="visibility:hidden"':''}>✕</button></div>`;
+}
+function sumMsg(){
+  const d=draft;if(d.subjects.some(s=>int(s.c)+int(s.w)>int(s.count)))return t('overflow');
+  const sum=d.subjects.reduce((a,s)=>a+int(s.count),0),n=int(d.total);
+  return d.subjects.length>1&&n&&sum!==n?t('sum_mismatch',{a:nf(sum),b:nf(n)}):'';
+}
+function renderGrid(){
+  const d=draft,n=int(d.total);if(!n)return`<p class="hint" style="padding:24px 0">${t('need_total')}</p>`;
+  const o=owners(d),runs=[];let cur=null;
+  for(let i=0;i<n;i++){if(!cur||cur.ri!==o[i]){cur={ri:o[i],a:i,b:i};runs.push(cur)}else cur.b=i}
+  const unc=o.filter(x=>x<0).length;
+  const reasonOpts=a=>`<option value="">${t('r_none')}</option>`+REASONS.map(r=>`<option value="${r}" ${a.r===r?'selected':''}>${t('r_'+r)}</option>`).join('');
+  return(unc?`<p class="warn" style="margin-top:16px">${t('uncovered',{n:nf(unc)})}</p>`:'')+runs.map(r=>{
+    const name=r.ri>=0?((d.ranges[r.ri].name||'').trim()||'—'):t('other');let cells='';
+    for(let i=r.a;i<=r.b;i++){
+      const a=d.answers[i];
+      cells+=`<div class="q s-${a.s}${a.f?' flg':''}" tabindex="0" data-q="${i}"><span class="qn">${nf(i+1)}</span><button class="fl" data-flag="${i}" title="${t('flag')}" tabindex="-1">⚑</button><div class="seg"><button data-v="c" tabindex="-1">✓</button><button data-v="w" tabindex="-1">✕</button><button data-v="b" tabindex="-1">–</button></div><select class="rsn" data-rsn="${i}">${reasonOpts(a)}</select></div>`;
+    }
+    return`<div class="qgroup"><div class="qg-head"><h3>${esc(name)}</h3><span class="hint">${t('q')} ${t('range',{a:nf(r.a+1),b:nf(r.b+1)})}</span><div class="row" style="margin-inline-start:auto"><button class="btn sm ghost" data-a="fill" data-from="${r.a}" data-to="${r.b}" data-v="c">${t('all_correct')}</button><button class="btn sm ghost" data-a="fill" data-from="${r.a}" data-to="${r.b}" data-v="b">${t('clear')}</button></div></div><div class="qgrid">${cells}</div></div>`;
+  }).join('');
+}
+
+function renderResult(){
+  const d=draft,r=compute(d),n=r.n||1,p=PENS.find(x=>Math.abs(x.v-d.penalty)<.001)||PENS[0];
+  return`<p class="eyebrow">${t('result')}</p>
+  <div class="big ${r.pct<0?'neg':''}">${pctf(r.pct)}</div>
+  <div class="stack"><span class="c" style="width:${r.c/n*100}%"></span><span class="w" style="width:${r.w/n*100}%"></span></div>
+  <ul class="legend"><li><i class="c"></i>${t('correct')} <b>${nf(r.c)}</b></li><li><i class="w"></i>${t('wrong')} <b>${nf(r.w)}</b></li><li><i class="b"></i>${t('blank')} <b>${nf(r.b)}</b></li></ul>
+  ${r.groups.length>1?`<div style="display:grid;gap:12px;margin-top:8px">${r.groups.map(g=>`<div><div class="row" style="justify-content:space-between;font-size:.9rem"><span>${esc(g.name)}</span><b>${pctf(g.pct)}</b></div><div class="thin" style="margin-top:4px"><span style="width:${clamp(g.pct)}%"></span></div></div>`).join('')}</div>`:''}
+  <p class="hint" style="margin-top:12px;font-size:.76rem">${t('formula',{p:p.f})}</p><p class="hint" style="margin-top:6px;font-size:.72rem">${t('coef_hint')}</p>`;
+}
+function updateLive(){const el=$('#result');if(el)el.innerHTML=renderResult()}
+function setTotal(v){
+  const d=draft,old=int(d.total),n=Math.min(400,int(v));d.total=v;
+  while(d.answers.length<n)d.answers.push({s:'b'});
+  if(d.subjects.length===1)d.subjects[0].count=n?String(n):'';
+  if(d.ranges.length===1&&int(d.ranges[0].from)<=1&&(!int(d.ranges[0].to)||int(d.ranges[0].to)===old))d.ranges[0].to=n||'';
+  $('#entry').innerHTML=renderEntry();updateLive();
+}
+function paintCell(i){const el=main.querySelector(`.q[data-q="${i}"]`);if(!el)return;const a=draft.answers[i];el.className=`q s-${a.s}${a.f?' flg':''}`}
+function setAnswer(i,v){const a=draft.answers[i];if(!a)return;a.s=v;if(v!=='w')delete a.r;paintCell(i);updateLive()}
+function switchMode(m){
+  const d=draft;if(d.mode===m)return;
+  if(m==='detail'&&d.subjects.length>1&&d.ranges.length===1&&!(d.ranges[0].name||'').trim()){
+    let at=1;d.ranges=d.subjects.filter(s=>int(s.count)).map(s=>{const r={name:s.name,from:at,to:at+int(s.count)-1,coef:coefValue(s.coef)};at+=int(s.count);return r});
+    const sum=at-1;if(sum){d.total=String(sum);while(d.answers.length<sum)d.answers.push({s:'b'})}
+  }
+  if(m==='overall'&&d.subjects.every(s=>!int(s.c)&&!int(s.w))){
+    const r=compute(Object.assign({},d,{mode:'detail'}));
+    if(r.c||r.w||r.groups.length>1)d.subjects=r.groups.map(g=>({name:g.name,count:String(g.n),c:g.c?String(g.c):'',w:g.w?String(g.w):'',coef:coefValue(g.coef)}));
+  }
+  d.mode=m;const tg=main.querySelectorAll('[data-a=mode]');tg.forEach(b=>b.classList.toggle('on',b.dataset.v===m));$('#entry').innerHTML=renderEntry();updateLive();
+}
+function saveDraft(){
+  const d=draft;
+  const ex={id:d.id||uid(),createdAt:d.createdAt||Date.now(),date:d.date||today(),mode:d.mode,penalty:+d.penalty,note:d.note||'',rank:toEn(d.rank).trim(),level:toEn(d.level).trim()};
+  if(d.mode==='overall'){
+    if(d.subjects.some(s=>int(s.c)+int(s.w)>int(s.count)))return toast(t('overflow'));
+    ex.subjects=d.subjects.map(s=>({name:(s.name||'').trim()||'—',count:int(s.count),c:int(s.c),w:int(s.w),coef:coefValue(s.coef)})).filter(s=>s.count>0);
+    ex.total=ex.subjects.reduce((a,s)=>a+s.count,0);if(!ex.total)return toast(t('need_total'));
+  }else{
+    const n=Math.min(400,int(d.total));if(!n)return toast(t('need_total'));ex.total=n;
+    ex.ranges=d.ranges.map(r=>({name:(r.name||'').trim(),from:int(r.from),to:int(r.to),coef:coefValue(r.coef)})).filter(r=>r.from&&r.to>=r.from);
+    ex.answers=d.answers.slice(0,n).map(a=>{const o={s:a.s};if(a.r)o.r=a.r;if(a.comment)o.comment=a.comment;if(a.f)o.f=1;if(a.d)o.d=1;return o});
+  }
+  ex.name=(d.name||'').trim()||`${t('untitled')} ${dateF(ex.date)}`;
+  const i=S.exams.findIndex(e=>e.id===ex.id);if(i>=0)S.exams[i]=ex;else S.exams.push(ex);
+  persist();openId=ex.id;draft=null;view='dash';render();toast(t('saved'));
+}
+function tplItems(){
+  const d=draft;if(d.mode==='overall')return d.subjects.map(s=>({name:s.name,count:int(s.count),coef:coefValue(s.coef)})).filter(s=>s.count);
+  return[...d.ranges].filter(r=>int(r.to)>=int(r.from)&&int(r.from)).sort((a,b)=>int(a.from)-int(b.from)).map(r=>({name:r.name,count:int(r.to)-int(r.from)+1,coef:coefValue(r.coef)}));
+}
+function applyTpl(id){
+  const x=S.templates.find(t=>t.id===id);if(!x)return;
+  const d=draft;d.total=String(x.total);d.subjects=x.items.map(s=>({name:s.name,count:String(s.count),c:'',w:'',coef:s.coef??1}));
+  let at=1;d.ranges=x.items.map(s=>{const r={name:s.name,from:at,to:at+s.count-1,coef:coefValue(s.coef)};at+=s.count;return r});
+  while(d.answers.length<x.total)d.answers.push({s:'b'});
+  main.innerHTML=renderEditor();updateLive();
+}
+
+/* mistake log */
+function renderErrors(){
+  const items=[];
+  [...sortedExams()].reverse().forEach(e=>{
+    if(e.mode!=='detail')return;
+    e.answers.forEach((a,i)=>{if(a.s==='w'||a.f)items.push({e,i,a})});
+  });
+  if(!items.length)return`<section class="empty">
+    <div class="empty-icon">🎯</div>
+    <h1>${t('err_title')}</h1>
+    <p class="hint">${t('err_empty')}</p>
+    <button class="btn primary" data-nav="new" style="margin-top:12px">${t('nav_new')}</button>
+  </section>`;
+
+  const cnt={all:items.length,wrong:items.filter(x=>x.a.s==='w').length,flag:items.filter(x=>x.a.f).length,open:items.filter(x=>!x.a.d).length};
+  const f={all:()=>true,wrong:x=>x.a.s==='w',flag:x=>x.a.f,open:x=>!x.a.d}[errFilter];
+  const shown=items.filter(f);
+  const wr=items.filter(x=>x.a.s==='w'),dist=[...REASONS,''].map(r=>({r,n:wr.filter(x=>(x.a.r||'')===r).length})).filter(x=>x.n),mx=Math.max(1,...dist.map(x=>x.n));
+  const groups=[];
+  shown.forEach(x=>{let g=groups.find(g=>g.e===x.e);if(!g)groups.push(g={e:x.e,rows:[]});g.rows.push(x)});
+
+  return`<div class="err-box">
+    <div class="row" style="justify-content:space-between;margin-bottom:20px">
+      <div><p class="eyebrow">${t('open_err')}</p><h1>${t('err_title')}</h1></div>
+      <div class="chips">${['all','wrong','flag','open'].map(k=>`<button class="chip ${errFilter===k?'on':''}" data-ef="${k}">${t('f_'+k)} (${nf(cnt[k])})</button>`).join('')}</div>
+    </div>
+    ${dist.length?`<section style="margin-bottom:32px;padding:16px;background:var(--sunk);border-radius:14px">
+      <h3 style="margin-bottom:12px">${t('reasons_dist')}</h3>
+      <div style="display:grid;gap:8px">${dist.map(x=>`<div class="row" style="font-size:.85rem"><span style="width:140px">${x.r?t('r_'+x.r):t('r_none')}</span><div class="thin" style="flex:1"><span style="width:${x.n/mx*100}%;background:var(--bad)"></span></div><b>${nf(x.n)}</b></div>`).join('')}</div>
+    </section>`:''}
+    ${groups.map(g=>`<div style="margin-bottom:24px">
+      <h3 style="margin-bottom:10px">${esc(g.e.name)} <span class="hint" style="font-weight:400">${dateF(g.e.date)}</span></h3>
+      <div>${g.rows.map(({e,i,a})=>`<div class="err-row ${a.d?'done':''}">
+        <input type="checkbox" data-rev="${e.id}:${i}" ${a.d?'checked':''} aria-label="Checked">
+        <span style="font-weight:700">${t('q')} ${nf(i+1)}</span>
+        <span>${esc(subjectOf(e,i))}</span>
+        <span class="st s-${a.s}">${t(a.s==='w'?'wrong':a.s==='c'?'correct':'blank')}</span>
+        ${a.s==='w'?`<select data-ersn="${e.id}:${i}"><option value="">${t('r_none')}</option>${REASONS.map(r=>`<option value="${r}" ${a.r===r?'selected':''}>${t('r_'+r)}</option>`).join('')}</select>`:'<span></span>'}
+        <span class="star">${a.f?'⚑':''}</span><textarea class="err-comment" data-ecomment="${e.id}:${i}" placeholder="یادداشت یا کامنت برای این سؤال غلط...">${esc(a.comment||'')}</textarea>
+      </div>`).join('')}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+/* settings */
+function renderSettings(){
+  return`<div class="err-box" style="max-width:760px;margin:0 auto">
+    <h1 style="margin-bottom:20px">${t('nav_set')}</h1>
+    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px">
+      <div class="field"><label>${t('lang')}</label><select data-s="lang">${Object.entries(LANGS).map(([k,v])=>`<option value="${k}" ${k===S.settings.lang?'selected':''}>${v.label}</option>`).join('')}</select></div>
+      <div class="field"><label>${t('default_pen')}</label><select data-s="penalty">${PENS.map(p=>`<option value="${p.v}" ${Math.abs(p.v-S.settings.penalty)<.001?'selected':''}>${t(p.k)}</option>`).join('')}</select></div>
+      <div class="field"><label>${t('goal_set')}</label><input data-s="goal" inputmode="numeric" value="${esc(S.settings.goal)}"></div>
+    </section>
+    <section style="margin-bottom:32px">
+      <h2>${t('templates')}</h2><p class="hint" style="margin-bottom:12px">${t('tpl_hint')}</p>
+      ${S.templates.length?`<div>${S.templates.map(x=>`<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span>${esc(x.name)} <small class="hint">(${nf(x.total)} سؤال)</small></span><button class="btn sm danger" data-a="del-tpl" data-id="${x.id}">✕</button></div>`).join('')}</div>`:`<p class="hint">${t('no_tpl')}</p>`}
+    </section>
+    <section style="margin-bottom:32px">
+      <h2>${t('backup')}</h2>
+      <div class="row" style="margin:12px 0"><button class="btn" data-a="export">${t('export')}</button><label class="btn ghost">${t('import')}<input type="file" id="file" accept="application/json,.json" hidden></label></div>
+      <textarea id="bk" placeholder="${t('paste_ph')}" style="direction:ltr;font-size:.8rem"></textarea>
+      <button class="btn sm" data-a="import-paste" style="margin-top:8px">${t('restore_paste')}</button>
+    </section>
+    <button class="btn danger" data-a="reset">${t('reset')}</button>
+  </div>`;
+}
+
+function restore(txt){
+  try{
+    const o=JSON.parse(txt);if(!o||!Array.isArray(o.exams))throw 0;
+    S=sanitize(o);persist();view='dash';render();toast(t('imported'));
+  }catch(e){toast(t('bad_file'))}
+}
+
+/* global events */
+document.addEventListener('click',e=>{
+  if(e.target.closest('#theme-btn')){
+    S.settings.theme=S.settings.theme==='dark'?'light':'dark';
+    persist();updateTheme();if(chart){chart.destroy();chart=null;drawChart()}if(examChart){examChart.destroy();examChart=null;drawExamChart()}
+    return;
+  }
+  const nav=e.target.closest('[data-nav]');
+  if(nav){
+    const v=nav.dataset.nav;if(v==='new'){draft=newDraft();view='edit'}else view=v;
+    render();if(view==='edit')setTimeout(()=>{const i=main.querySelector('[data-f=total]');i&&i.focus()},50);
+    return;
+  }
+  if(!main.contains(e.target))return;
+  const collapse=e.target.closest('[data-collapse]');
+  if(collapse){
+    const id=collapse.dataset.collapse;
+    if(collapsedPanels.has(id))collapsedPanels.delete(id);else collapsedPanels.add(id);
+    const closed=collapsedPanels.has(id),content=$(`#${id}-content`);
+    if(content)content.hidden=closed;
+    collapse.setAttribute('aria-expanded',String(!closed));
+    collapse.title=closed?'بازکردن کادر':'بستن کادر';
+    collapse.innerHTML=`<span class="collapse-symbol">${closed?'＋':'−'}</span><span class="collapse-label">${closed?'بازکردن':'بستن'}</span>`;
+    const global=main.querySelector('[data-a="toggle-panels"]');if(global)global.textContent=allPanelsCollapsed()?'بازکردن همه کادرها':'بستن همه کادرها';
+    if(!closed){requestAnimationFrame(()=>{if(id==='trend'){if(chart)chart.resize();else drawChart()}if(id==='subject'){if(examChart)examChart.resize();else drawExamChart()}})}
+    return;
+  }
+  const q=e.target.closest('.q');
+  if(q&&e.target.closest('[data-v]')&&e.target.closest('.seg')){setAnswer(+q.dataset.q,e.target.closest('[data-v]').dataset.v);return}
+  const fl=e.target.closest('[data-flag]');if(fl){const i=+fl.dataset.flag;draft.answers[i].f=!draft.answers[i].f;paintCell(i);return}
+  const op=e.target.closest('[data-open]');if(op){
+    openId=openId===op.dataset.open?null:op.dataset.open;
+    const y=window.scrollY;if(chart){chart.destroy();chart=null}if(examChart){examChart.destroy();examChart=null}main.innerHTML=renderDash();drawChart();drawExamChart();window.scrollTo({top:y});return;
+  }
+  const cs=e.target.closest('[data-csub]');if(cs){
+    const s=cs.dataset.csub;chartSubs.has(s)?chartSubs.delete(s):chartSubs.add(s);
+    cs.classList.toggle('on');if(chart)chart.destroy();drawChart();return;
+  }
+  const ef=e.target.closest('[data-ef]');if(ef){errFilter=ef.dataset.ef;main.innerHTML=renderErrors();return}
+  const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,d=draft;
+  switch(a){
+    case'toggle-panels':{const close=!allPanelsCollapsed();DASH_PANELS.forEach(id=>close?collapsedPanels.add(id):collapsedPanels.delete(id));const y=window.scrollY;if(chart){chart.destroy();chart=null}if(examChart){examChart.destroy();examChart=null}main.innerHTML=renderDash();drawChart();drawExamChart();window.scrollTo({top:y});break;}
+    case'counterfactual':counterfactualOpen.has(b.dataset.id)?counterfactualOpen.delete(b.dataset.id):counterfactualOpen.add(b.dataset.id);{const y=window.scrollY;if(chart){chart.destroy();chart=null}if(examChart){examChart.destroy();examChart=null}main.innerHTML=renderDash();drawChart();drawExamChart();window.scrollTo({top:y});}break;
+    case'mode':switchMode(b.dataset.v);break;
+    case'add-sub':d.subjects.push({name:'',count:'',c:'',w:'',coef:1});$('#entry').innerHTML=renderEntry();main.querySelector(`[data-sub="${d.subjects.length-1}"][data-k=name]`).focus();break;
+    case'rm-sub':d.subjects.splice(+b.dataset.i,1);$('#entry').innerHTML=renderEntry();updateLive();break;
+    case'add-range':{const last=d.ranges[d.ranges.length-1],from=(int(last&&last.to)||0)+1;d.ranges.push({name:'',from,to:int(d.total)||''});$('#entry').innerHTML=renderEntry();main.querySelector(`[data-rng="${d.ranges.length-1}"][data-k=name]`).focus();updateLive();break}
+    case'rm-rng':d.ranges.splice(+b.dataset.i,1);$('#entry').innerHTML=renderEntry();updateLive();break;
+    case'fill':for(let i=+b.dataset.from;i<=+b.dataset.to;i++){d.answers[i].s=b.dataset.v;delete d.answers[i].r;paintCell(i)}updateLive();break;
+    case'quick':{let i=Math.max(1,int($('#qfrom').value))-1;const n=int(d.total);const s=toEn($('#qtext').value);for(const ch of s){if(i>=n)break;const v=/[1cCدd✓]/.test(ch)?'c':/[2wWغx✕]/.test(ch)?'w':/[0bBن\-–._]/.test(ch)?'b':null;if(!v)continue;d.answers[i].s=v;if(v!=='w')delete d.answers[i].r;paintCell(i);i++}$('#qfrom').value=Math.min(n,i+1);$('#qtext').value='';updateLive();break}
+    case'save':saveDraft();break;
+    case'cancel':draft=null;view='dash';render();break;
+    case'edit':{const ex=S.exams.find(x=>x.id===b.dataset.id);if(ex){draft=draftFrom(ex);view='edit';render()}break}
+    case'del':if(b.classList.contains('armed')){S.exams=S.exams.filter(x=>x.id!==b.dataset.id);persist();openId=null;render();toast(t('deleted'))}else{b.classList.add('armed');b.textContent=t('sure');setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=t('del')}},3000)}break;
+    case'save-tpl':{const items=tplItems();if(!items.length)return toast(t('need_total'));const total=items.reduce((s,x)=>s+x.count,0);const nm=($('#tplname').value||'').trim()||`${t('untitled')} ${nf(total)}`;S.templates.push({id:uid(),name:nm,total,items});persist();main.innerHTML=renderEditor();updateLive();toast(t('saved'));break}
+    case'del-tpl':S.templates=S.templates.filter(x=>x.id!==b.dataset.id);persist();render();break;
+    case'export':{const txt=JSON.stringify(S,null,2);$('#bk').value=txt;try{const bl=new Blob([txt],{type:'application/json'}),l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download=`karnameh-${today()}.json`;document.body.appendChild(l);l.click();l.remove()}catch(err){}break}
+    case'import-paste':restore($('#bk').value);break;
+    case'reset':if(b.classList.contains('armed')){S=sanitize({settings:S.settings});persist();view='dash';render();toast(t('deleted'))}else{b.classList.add('armed');b.textContent=t('sure');setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=t('reset')}},3000)}break;
+  }
+});
+
+main.addEventListener('input',e=>{
+  const el=e.target,d=draft;
+  if(el.dataset.f&&d){const f=el.dataset.f;if(f==='total')return setTotal(el.value);d[f]=f==='penalty'?+el.value:el.value;if(f==='penalty')updateLive();return}
+  if(el.dataset.sub!=null){const i=+el.dataset.sub,k=el.dataset.k,s=d.subjects[i];s[k]=el.value;
+    if(k==='count'&&d.subjects.length===1){d.total=el.value;const ti=main.querySelector('[data-f=total]');if(ti)ti.value=el.value}
+    const n=int(s.count),c=int(s.c),w=int(s.w);const o=$('#sb-'+i);if(o)o.textContent=nf(Math.max(0,n-c-w));$('#sr-'+i).classList.toggle('bad',c+w>n);$('#summsg').textContent=sumMsg();updateLive();return}
+  if(el.dataset.rng!=null){d.ranges[+el.dataset.rng][el.dataset.k]=el.value;$('#grid').innerHTML=renderGrid();updateLive();return}
+  if(el.dataset.ecomment){const[id,i]=el.dataset.ecomment.split(':');const ex=S.exams.find(x=>x.id===id);if(ex&&ex.answers[i]){ex.answers[i].comment=el.value;persist()}return}
+  if(el.dataset.enote){const ex=S.exams.find(x=>x.id===el.dataset.enote);if(ex){ex.note=el.value;clearTimeout(noteTimer);noteTimer=setTimeout(()=>{persist();toast(t('notes_saved'))},600)}return}
+  if(el.dataset.s==='goal'){S.settings.goal=Math.max(0,Math.min(100,int(el.value)));persist();return}
+});
+
+main.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.dataset.rsn!=null){draft.answers[+el.dataset.rsn].r=el.value||undefined;return}
+  if(el.dataset.ersn){const[id,i]=el.dataset.ersn.split(':');const ex=S.exams.find(x=>x.id===id);if(ex){ex.answers[+i].r=el.value||undefined;persist();main.innerHTML=renderErrors()}return}
+  if(el.dataset.rev){const[id,i]=el.dataset.rev.split(':');const ex=S.exams.find(x=>x.id===id);if(ex){const a=ex.answers[+i];a.d=el.checked?1:undefined;persist();el.closest('.err-row').classList.toggle('done',el.checked);if(errFilter==='open')setTimeout(()=>{main.innerHTML=renderErrors()},300)}return}
+  if(el.id==='exam-chart-select'){if(examChart){examChart.destroy();examChart=null}drawExamChart();return}
+  if(el.hasAttribute('data-tpl')){applyTpl(el.value);return}
+  if(el.dataset.s==='lang'){S.settings.lang=el.value;persist();render();return}
+  if(el.dataset.s==='penalty'){S.settings.penalty=+el.value;persist();return}
+  if(el.id==='file'&&el.files[0]){const fr=new FileReader();fr.onload=()=>restore(fr.result);fr.readAsText(el.files[0])}
+});
+
+main.addEventListener('keydown',e=>{
+  const q=e.target.classList&&e.target.classList.contains('q')?e.target:null;if(!q)return;
+  const i=+q.dataset.q,k=toEn(e.key).toLowerCase(),rtl=L().dir==='rtl';
+  const map={'1':'c','c':'c','2':'w','w':'w','0':'b','b':'b',' ':'b','-':'b'};
+  const go=j=>{const n=main.querySelector(`.q[data-q="${j}"]`);if(n){n.focus();n.scrollIntoView({block:'nearest'})}};
+  if(map[k]){e.preventDefault();setAnswer(i,map[k]);go(i+1);return}
+  if(k==='f'||k==='3'){e.preventDefault();draft.answers[i].f=!draft.answers[i].f;paintCell(i);return}
+  if(e.key==='ArrowRight'){e.preventDefault();go(rtl?i-1:i+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(rtl?i+1:i-1)}
+  if(e.key==='Backspace'){e.preventDefault();setAnswer(i,'b');go(i-1)}
+});
+
+$('#lang').addEventListener('change',e=>{S.settings.lang=e.target.value;persist();render()});
+
+render();
+</script>
+
+<div id="pwa-install" role="region" aria-label="نصب کارنامه Pro">
+  <span style="flex:1">کارنامه Pro را روی گوشی نصب کن</span>
+  <button id="pwa-install-btn" type="button">نصب</button>
+  <button class="pwa-dismiss" id="pwa-install-dismiss" type="button" aria-label="بستن">×</button>
+</div>
+<script>
+(()=>{
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('PWA service worker:', err)));
+  }
+  let installPrompt=null;
+  const banner=document.getElementById('pwa-install');
+  const installBtn=document.getElementById('pwa-install-btn');
+  const dismissBtn=document.getElementById('pwa-install-dismiss');
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault(); installPrompt=event;
+    if (!sessionStorage.getItem('pwa-install-dismissed') && banner) banner.style.display='flex';
+  });
+  installBtn?.addEventListener('click', async()=>{
+    if(!installPrompt)return; installPrompt.prompt();
+    try{await installPrompt.userChoice;}catch(e){}
+    installPrompt=null; if(banner)banner.style.display='none';
+  });
+  dismissBtn?.addEventListener('click',()=>{if(banner)banner.style.display='none';sessionStorage.setItem('pwa-install-dismissed','1')});
+  window.addEventListener('appinstalled',()=>{if(banner)banner.style.display='none';installPrompt=null});
+})();
+</script>
+
+</body>
+</html>
