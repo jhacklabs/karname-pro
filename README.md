@@ -30,6 +30,8 @@
 - `manifest.json`: Installation metadata for mobile and desktop
 - `sw.js`: Service worker for asset caching and basic offline support
 - `icons/`: App installation icons
+### How to Use
+To use it, you can follow the link provided in the README file, check the Releases section, or simply open the `index.html` file in your browser.
 
 ### Deploy to the web
 1. Upload all files and folders to a static web host, preserving the existing directory structure.
