@@ -3,11 +3,12 @@
 <head>
 
 <!-- skill:libraries -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" integrity="sha384-XcdcwHqIPULERb2yDEM4R0XaQKU3YnDsrTmjACBZyfdVVqjh6xQ4/DCMd7XLcA6Y" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js" integrity="sha384-XcdcwHqIPULERb2yDEM4R0XaQKU3YnDsrTmjACBZyfdVVqjh6xQ4/DCMd7XLcA6Y" crossorigin="anonymous"></script>
 <!-- /skill:libraries -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="کارنامه Pro؛ ابزار مدیریت و تحلیل کارنامه و آزمون‌ها">
+<meta name="application-version" content="1.0.0">
 <meta name="theme-color" content="#111827">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +18,7 @@
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <title>کارنامه Pro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap"></noscript>
 <style>
 :root{
   --font:Vazirmatn,system-ui,-apple-system,sans-serif;
@@ -116,9 +117,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   justify-content:space-between;
   gap:var(--s4);
   padding:var(--s3) var(--s6);
-  background:color-mix(in oklch,var(--bg) 85%,transparent);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
+  background:color-mix(in oklch,var(--bg) 96%,transparent);
   border-bottom:1px solid var(--line);
 }
 .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:1.15rem;letter-spacing:-.01em}
@@ -550,7 +549,6 @@ i.c{background:var(--ok)}i.w{background:var(--bad)}i.b{background:var(--mute)}
   background:linear-gradient(var(--surface),var(--surface)) padding-box,
     linear-gradient(125deg,#8b5cf6 0%,#22d3ee 18%,#34d399 35%,#f0abfc 52%,#818cf8 70%,#22d3ee 100%) border-box;
   background-size:100% 100%, 260% 260%;
-  animation:auroraFlow 18s ease-in-out infinite;
   box-shadow:var(--card-shadow),0 0 0 1px rgba(139,92,246,.10),0 0 16px rgba(34,211,238,.055);
 }
 .chart-panel{padding:var(--s5);}
@@ -686,8 +684,9 @@ const qcls=a=>'q s-'+a.s+(a.f?' flg':'')+((a.t||a.td||a.comment)?' hd':'');
 const PENS=[{v:1/3,k:'pen_3',f:'⅓'},{v:1/4,k:'pen_4',f:'¼'},{v:0,k:'pen_0',f:'0'}];
 const KEY='karnameh_pro.v2';
 
+const APP_VERSION='1.0.0';
 const BK_KEY='karnameh_pro.backup',DRAFT_KEY='karnameh_pro.draft';
-let storageOk=true,MIGRATED=false;
+let storageOk=true,MIGRATED=false,cver=0,_ps=null;
 function mkid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function loadState(){
   try{
@@ -734,9 +733,12 @@ function setSaveStatus(ok){
   el.className='savestat '+(ok?'ok':'bad');
 }
 function persist(){
+  cver++;clearTimeout(_ps);_ps=null;
   try{localStorage.setItem(KEY,JSON.stringify(S));storageOk=true;setSaveStatus(true);return true}
   catch(e){storageOk=false;setSaveStatus(false);return false}
 }
+function persistSoon(){cver++;clearTimeout(_ps);_ps=setTimeout(persist,350)}
+function flushPersist(){if(_ps){clearTimeout(_ps);persist()}}
 function snapshot(){try{localStorage.setItem(BK_KEY,JSON.stringify({at:Date.now(),data:S}))}catch(e){}}
 let dT=null;
 function clearDraftStore(){clearTimeout(dT);try{localStorage.removeItem(DRAFT_KEY)}catch(e){}}
@@ -829,15 +831,23 @@ function toast(msg){
 }
 
 /* scoring engine */
+const _oc=new WeakMap();
 function owners(ex){
-  const n=int(ex.total);const o=new Array(n).fill(-1);
+  const n=int(ex.total),sig=n+'|'+JSON.stringify(ex.ranges||[]),c=_oc.get(ex);if(c&&c.sig===sig)return c.o;
+  const o=new Array(n).fill(-1);
   (ex.ranges||[]).forEach((r,ri)=>{
     const f=Math.max(1,int(r.from)),to=Math.min(n,int(r.to));
     for(let q=f;q<=to;q++)if(o[q-1]<0)o[q-1]=ri;
   });
-  return o;
+  _oc.set(ex,{sig,o});return o;
 }
+const _cc=new WeakMap();
 function compute(ex){
+  if(!ex||ex===draft)return computeRaw(ex);
+  const c=_cc.get(ex);if(c&&c.v===cver)return c.r;
+  const r=computeRaw(ex);_cc.set(ex,{v:cver,r});return r;
+}
+function computeRaw(ex){
   const pen=+ex.penalty||0;let groups=[];
   if(ex.mode==='detail'){
     const n=int(ex.total),o=owners(ex);
@@ -891,7 +901,7 @@ function renderHeader(){
 }
 
 function render(){
-  renderHeader();
+  cver++;renderHeader();
   if(chart){chart.destroy();chart=null}
   if(examChart){examChart.destroy();examChart=null}
   main.innerHTML=view==='edit'?renderEditor():view==='errors'?renderErrors():view==='settings'?renderSettings():renderDash();
@@ -1174,7 +1184,7 @@ function renderEntry(){
     ${d.ranges.map((r,i)=>`<div class="rng-row"><input data-rng="${i}" data-k="name" value="${esc(r.name)}" placeholder="${t('subject')}"><input data-rng="${i}" data-k="from" inputmode="numeric" value="${esc(r.from)}"><input data-rng="${i}" data-k="to" inputmode="numeric" value="${esc(r.to)}"><input data-rng="${i}" data-k="coef" inputmode="decimal" aria-label="ضریب" title="ضریب درس" value="${esc(r.coef??1)}" style="min-width:0;padding:8px 4px"><button class="btn sm danger" data-a="rm-rng" data-i="${i}" style="padding:0 8px" ${d.ranges.length<2?'disabled style="visibility:hidden"':''}>✕</button></div>`).join('')}
   </div><button class="btn sm" style="margin-top:8px" data-a="add-range">${t('add_range')}</button>
   <div class="tools" style="margin-top:16px"><p class="hint">${t('keys_hint')}</p>
-    <div class="quick"><label class="lbl" style="margin:0" for="qfrom">${t('quick')}</label><input id="qfrom" inputmode="numeric" value="1"><input id="qtext" placeholder="${t('quick_ph')}" autocomplete="off" spellcheck="false"><button class="btn sm" data-a="quick">${t('apply')}</button></div></div>
+    <div class="quick"><label class="lbl" style="margin:0" for="qfrom">${t('quick')}</label><input id="qfrom" inputmode="numeric" value="1"><input id="qtext" placeholder="${t('quick_ph')}" autocomplete="off" spellcheck="false"><button class="btn sm" data-a="quick">${t('apply')}</button></div><div class="row" style="margin-top:10px"><button class="btn sm" data-a="omr">📷 اسکن پاسخ‌برگ (آفلاین)</button></div></div>
   <div id="grid">${renderGrid()}</div>`;
 }
 
@@ -1313,7 +1323,7 @@ function openQ(get,after,title,done){
 }
 
 /* mistake log */
-let EF={w:true,b:false,f:true,exam:'',subj:'',topic:'',reason:'',rev:'all',q:'',group:'exam'};
+let EF={limit:80,lsig:'',w:true,b:false,f:true,exam:'',subj:'',topic:'',reason:'',rev:'all',q:'',group:'exam'};
 function errBase(){
   const out=[];
   sortedExams().reverse().forEach(e=>{
@@ -1351,12 +1361,14 @@ function errRow({e,i,a,subj}){
     <button class="btn sm" data-a="edit-q" data-ref="${id}">ویرایش</button></div>`;
 }
 function errList(){
-  const rows=errFiltered(errBase());
+  const all=errFiltered(errBase()),sig=[EF.w,EF.b,EF.f,EF.exam,EF.subj,EF.topic,EF.reason,EF.rev,EF.q,EF.group].join('|');
+  if(EF.lsig!==sig){EF.lsig=sig;EF.limit=80}
+  const rows=all.slice(0,EF.limit);
   if(!rows.length)return'<p class="hint" style="padding:24px 0">موردی با این فیلترها پیدا نشد.</p>';
   const key=x=>EF.group==='subject'?x.subj:EF.group==='topic'?((x.a.t||'').trim()||'بدون مبحث'):EF.group==='reason'?rLabel(x.a.r):x.e.id;
   const gm=new Map();rows.forEach(x=>{const k=key(x);if(!gm.has(k))gm.set(k,{x,rows:[]});gm.get(k).rows.push(x)});
   const gs=[...gm.values()];if(EF.group!=='exam')gs.sort((a,b)=>b.rows.length-a.rows.length);
-  return`<p class="hint" style="margin-bottom:10px">${nf(rows.length)} مورد</p>`+gs.map(g=>`<div style="margin-bottom:22px"><h3 style="margin-bottom:8px">${esc(EF.group==='exam'?g.x.e.name:key(g.x))} <span class="hint" style="font-weight:400">${EF.group==='exam'?dateF(g.x.e.date)+' · ':''}${nf(g.rows.length)}</span></h3>${g.rows.map(errRow).join('')}</div>`).join('');
+  return`<p class="hint" style="margin-bottom:10px">${nf(all.length)} مورد${all.length>rows.length?' (نمایش '+nf(rows.length)+' مورد اول)':''}</p>`+gs.map(g=>`<div style="margin-bottom:22px"><h3 style="margin-bottom:8px">${esc(EF.group==='exam'?g.x.e.name:key(g.x))} <span class="hint" style="font-weight:400">${EF.group==='exam'?dateF(g.x.e.date)+' · ':''}${nf(g.rows.length)}</span></h3>${g.rows.map(errRow).join('')}</div>`).join('')+(all.length>rows.length?`<div class="row" style="justify-content:center;margin:8px 0"><button class="btn" data-a="more-err">نمایش ${nf(Math.min(80,all.length-rows.length))} مورد بیشتر</button></div>`:'');
 }
 function renderErrors(){
   if(!S.exams.some(e=>e.mode==='detail'))return`<section class="empty"><div class="empty-icon">🎯</div><h1>${t('err_title')}</h1><p class="hint">${t('err_empty')}</p><button class="btn primary" data-nav="new" style="margin-top:12px">${t('nav_new')}</button></section>`;
@@ -1486,6 +1498,7 @@ function renderSettings(){
     <section style="margin-bottom:32px"><h2>دسته‌های علت اشتباه</h2><p class="hint" style="margin-bottom:12px">دسته‌های پیش‌فرض ثابت‌اند؛ دستهٔ دلخواه خودت را اضافه کن.</p><div class="row" style="margin-bottom:10px"><input id="newreason" placeholder="مثلاً: استرس آزمون" style="max-width:260px"><button class="btn sm" data-a="add-reason">افزودن</button></div>${(S.customReasons||[]).map(x=>`<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)"><span>${esc(x.label)}</span><button class="btn sm danger" data-a="del-reason" data-id="${x.id}">✕</button></div>`).join('')}</section>
     ${(()=>{try{const bk=JSON.parse(localStorage.getItem(BK_KEY));return bk&&bk.data?`<section style="margin-bottom:32px"><h2>نسخهٔ ایمنی خودکار</h2><p class="hint" style="margin-bottom:10px">پیش از مهاجرت، بازیابی، حذف آزمون یا صفر کردن، یک نسخه (${esc(new Date(bk.at).toLocaleString('fa-IR'))} · ${nf((bk.data.exams||[]).length)} آزمون) نگه داشته می‌شود.</p><button class="btn" data-a="restore-snap">بازگردانی نسخهٔ ایمنی</button></section>`:''}catch(e){return''}})()}
     <button class="btn danger" data-a="reset">${t('reset')}</button>
+    <p class="hint" style="margin-top:24px">کارنامه Pro · نسخهٔ <span dir="ltr">v${APP_VERSION}</span></p>
   </div>`;
 }
 
@@ -1502,6 +1515,118 @@ function restore(txt){
     const cr=new Set(S.customReasons.map(x=>x.id));inc.customReasons.forEach(x=>{if(!cr.has(x.id))S.customReasons.push(x)});
     persist();view='dash';render();toast(nf(add)+' آزمون جدید اضافه شد');
   }else{S=inc;persist();view='dash';render();toast(t('imported'))}
+}
+
+
+/* ---------- OMR core (pure functions; tuned on a 120-question, 4-option sheet) ---------- */
+const FR=[126,143,160,177,209,225,241,256,288,304,321,337,368,385,401,418].map(x=>(x-90.5)/363);
+const THR=.10;
+function boxBlur(src,W,H,r){
+  const t=new Float32Array(W*H),o=new Float32Array(W*H),m=2*r+1;
+  for(let y=0;y<H;y++){let s=0,b=y*W;for(let x=-r;x<=r;x++)s+=src[b+Math.min(W-1,Math.max(0,x))];for(let x=0;x<W;x++){t[b+x]=s/m;s+=src[b+Math.min(W-1,x+r+1)]-src[b+Math.max(0,x-r)]}}
+  for(let x=0;x<W;x++){let s=0;for(let y=-r;y<=r;y++)s+=t[Math.min(H-1,Math.max(0,y))*W+x];for(let y=0;y<H;y++){o[y*W+x]=s/m;s+=t[Math.min(H-1,y+r+1)*W+x]-t[Math.max(0,y-r)*W+x]}}
+  return o;
+}
+function detect(g,W,H){
+  const s=Math.max(W,H)/800,N=W*H,bg=boxBlur(g,W,H,Math.round(40*s)),nrm=new Float32Array(N),mask=new Uint8Array(N);
+  for(let i=0;i<N;i++){nrm[i]=g[i]/Math.max(bg[i],1);mask[i]=nrm[i]<.45?1:0}
+  const seen=new Uint8Array(N),st=new Int32Array(N),cand=[];
+  for(let i=0;i<N;i++){
+    if(!mask[i]||seen[i])continue;
+    let sp=0,n=0,sx=0,sy=0,x0=W,x1=0,y0=H,y1=0;st[sp++]=i;seen[i]=1;
+    while(sp){const j=st[--sp],x=j%W,y=(j-x)/W;n++;sx+=x;sy+=y;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+      if(x>0&&mask[j-1]&&!seen[j-1]){seen[j-1]=1;st[sp++]=j-1}if(x<W-1&&mask[j+1]&&!seen[j+1]){seen[j+1]=1;st[sp++]=j+1}
+      if(y>0&&mask[j-W]&&!seen[j-W]){seen[j-W]=1;st[sp++]=j-W}if(y<H-1&&mask[j+W]&&!seen[j+W]){seen[j+W]=1;st[sp++]=j+W}}
+    const w=x1-x0+1,h=y1-y0+1;
+    if(w/h>1.8&&w/h<5.5&&n/(w*h)>.65&&h>=3*s&&h<=20*s&&w>9*s)cand.push([sx/n,sy/n]);
+  }
+  if(cand.length<60)return{ok:false,err:'مربع‌های مشکی کنار برگه پیدا نشد. برگه را کامل، صاف و با نور یکنواخت عکس بگیر (یا چرخش را عوض کن).'};
+  cand.sort((a,b)=>a[0]-b[0]);
+  const edge=arr=>{const m=arr.map(c=>c[0]).sort((a,b)=>a-b)[arr.length>>1];return arr.filter(c=>Math.abs(c[0]-m)<.05*W)};
+  const Lc=edge(cand.slice(0,40)),Rc=edge(cand.slice(-40).reverse().reverse());
+  if(Lc.length<30||Rc.length<30)return{ok:false,err:'همهٔ ۳۰ مربع مشکی هر طرف برگه دیده نشد (سایه، کج بودن یا لبهٔ بریده).'};
+  const L=Lc.slice(0,30).sort((a,b)=>a[1]-b[1]),R=Rc.slice(-30).sort((a,b)=>a[1]-b[1]);
+  for(const side of[L,R]){
+    const xs=side.map(c=>c[0]);if(Math.max(...xs)-Math.min(...xs)>.12*W)return{ok:false,err:'چیدمان مربع‌های کناری معتبر نیست؛ عکس را اصلاح یا دوباره بگیر.'};
+    const d=[];for(let i=1;i<30;i++)d.push(side[i][1]-side[i-1][1]);const p=[...d].sort((a,b)=>a-b)[14];
+    if(Math.max(...d)>3.2*p||Math.min(...d)<.5*p)return{ok:false,err:'فاصلهٔ مربع‌های کناری نامنظم است؛ تعداد ۳۰ ردیف تشخیص داده نشد.'};
+  }
+  const p=(R[29][1]-R[0][1])/29*.9; /* approx row pitch */
+  const ii=new Float64Array((W+1)*(H+1));
+  for(let y=0;y<H;y++){let rs=0;for(let x=0;x<W;x++){rs+=nrm[y*W+x];ii[(y+1)*(W+1)+x+1]=ii[y*(W+1)+x+1]+rs}}
+  const box=(x0,y0,x1,y1)=>{x0=Math.max(0,x0|0);y0=Math.max(0,y0|0);x1=Math.min(W,x1|0);y1=Math.min(H,y1|0);const a=(x1-x0)*(y1-y0);return a>0?(ii[y1*(W+1)+x1]-ii[y0*(W+1)+x1]-ii[y1*(W+1)+x0]+ii[y0*(W+1)+x0])/a:1};
+  const sc=new Float32Array(30*16),pos=[];
+  for(let r=0;r<30;r++){for(let j=0;j<16;j++){
+    const x=L[r][0]+(R[r][0]-L[r][0])*FR[j],y=L[r][1]+(R[r][1]-L[r][1])*FR[j]+.1*p;
+    sc[r*16+j]=1-box(x-.5*p,y-.34*p,x+.5*p+1,y+.34*p+1);pos.push([x,y])}}
+  return{ok:true,sc,pos,p};
+}
+function pickAnswers(sc,flip){
+  const a=new Array(120).fill(0);
+  for(let r=0;r<30;r++)for(let b=0;b<4;b++){
+    const v=[0,1,2,3].map(k=>sc[r*16+b*4+k]);let k=0;for(let i=1;i<4;i++)if(v[i]>v[k])k=i;
+    const o=[...v].sort((x,y)=>y-x)[1];
+    a[b*30+r]=v[k]<THR?0:(o>.5*v[k]&&o>THR)?-1:(flip?4-k:k+1);
+  }
+  return a;
+}
+
+/* ---------- answer-sheet scanner (offline) ---------- */
+async function omrRead(file,deg,flip){
+  const bmp=await createImageBitmap(file),k=1000/Math.max(bmp.width,bmp.height),w=Math.round(bmp.width*k),h=Math.round(bmp.height*k),sw=deg%180!==0;
+  const cv=document.createElement('canvas');cv.width=sw?h:w;cv.height=sw?w:h;
+  const c=cv.getContext('2d');c.translate(cv.width/2,cv.height/2);c.rotate(deg*Math.PI/180);c.drawImage(bmp,-w/2,-h/2,w,h);
+  const W=cv.width,H=cv.height,d=c.getImageData(0,0,W,H).data,g=new Float32Array(W*H);
+  for(let i=0;i<W*H;i++)g[i]=.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2];
+  const det=detect(g,W,H);if(!det.ok)return det;
+  return Object.assign(det,{cv,ans:pickAnswers(det.sc,flip)});
+}
+let OM=null;
+function omrKeyFromText(txt){const s=toEn(txt).replace(/\s/g,'');return [...Array(120)].map((_,i)=>{const c=s[i];return c>='1'&&c<='4'?+c:0})}
+function omrGrade(ans,key,n){let c=0,w=0,b=0,m=0,nk=0;const st=[];for(let i=0;i<n;i++){const k=key[i],a=ans[i];if(a===-1)m++;if(!k){nk++;st.push('b');b++;continue}if(a===k){st.push('c');c++}else if(a>0){st.push('w');w++}else{st.push('b');b++}}return{st,c,w,b,m,nk}}
+function openOmr(){
+  closeOmr();OM={key:null,ans:null,det:null};
+  const ov=document.createElement('div');ov.className='ovl';ov.id='omr';
+  ov.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><div class="row" style="justify-content:space-between"><h2>اسکن پاسخ‌برگ</h2><button class="btn sm ghost" data-oclose>✕</button></div>
+  <p class="hint">همه‌چیز روی همین دستگاه انجام می‌شود (بدون اینترنت). برگه را صاف و کامل، با هر دو ستون مربع‌های مشکی، عکس بگیر.</p>
+  <div class="field"><label>عکس پاسخ‌برگ تو</label><input type="file" id="o-s" accept="image/*"></div>
+  <div class="field"><label>کلید پاسخ: عکس برگهٔ کلید</label><input type="file" id="o-k" accept="image/*"></div>
+  <div class="field"><label>یا رشتهٔ کلید (۱ تا ۴؛ ۰ یا - برای سؤال حذف‌شده)</label><textarea id="o-t" placeholder="3421..." style="direction:ltr;min-height:60px"></textarea></div>
+  <div class="row"><div class="field" style="flex:1"><label>چرخش عکس</label><select id="o-r">${[0,90,180,270].map(x=>`<option value="${x}">${x}°</option>`).join('')}</select></div>
+  <div class="field" style="flex:1"><label>ترتیب گزینه‌ها</label><select id="o-f"><option value="0">۱۲۳۴ از چپ به راست</option><option value="1">۱۲۳۴ از راست به چپ</option></select></div></div>
+  <div class="row"><button class="btn primary" id="o-go">خواندن برگه</button></div><div id="o-out"></div></div>`;
+  ov.addEventListener('click',async e=>{
+    if(e.target===ov||e.target.closest('[data-oclose]'))return closeOmr();
+    if(e.target.id==='o-go')await omrRun(ov);
+    if(e.target.id==='o-apply')omrApply();
+  });
+  document.body.appendChild(ov);
+}
+function closeOmr(){const o=document.getElementById('omr');if(o)o.remove();OM=null}
+async function omrRun(ov){
+  const out=ov.querySelector('#o-out'),sf=ov.querySelector('#o-s').files[0],kf=ov.querySelector('#o-k').files[0],kt=ov.querySelector('#o-t').value.trim();
+  const deg=+ov.querySelector('#o-r').value,flip=ov.querySelector('#o-f').value==='1';
+  if(!sf){out.innerHTML='<p class="warn">عکس پاسخ‌برگ را انتخاب کن.</p>';return}
+  if(!kf&&!kt){out.innerHTML='<p class="warn">کلید پاسخ لازم است (عکس برگهٔ کلید یا رشته).</p>';return}
+  out.innerHTML='<p class="hint">در حال خواندن…</p>';
+  try{
+    const r=await omrRead(sf,deg,flip);if(!r.ok){out.innerHTML=`<p class="warn">${esc(r.err)}</p>`;return}
+    let key;if(kf){const k=await omrRead(kf,deg,flip);if(!k.ok){out.innerHTML=`<p class="warn">برگهٔ کلید: ${esc(k.err)}</p>`;return}key=k.ans.map(v=>v>0?v:0)}else key=omrKeyFromText(kt);
+    const n=Math.min(120,int(draft.total)||120),g=omrGrade(r.ans,key,n);
+    const c=r.cv.getContext('2d');c.lineWidth=2;
+    for(let q=0;q<n;q++){const rr=q%30,b=(q-rr)/30;for(let k=0;k<4;k++){const v=r.sc[rr*16+b*4+k];if(v<THR)continue;const[x,y]=r.pos[rr*16+b*4+k];c.strokeStyle=r.ans[q]===-1?'#ef4444':!key[q]?'#38bdf8':r.ans[q]===key[q]?'#22c55e':'#f59e0b';c.beginPath();c.ellipse(x,y,r.p*.9,r.p*.5,0,0,7);c.stroke()}}
+    OM={st:g.st,n};
+    out.innerHTML=`<p style="margin:10px 0"><b>${nf(g.c)}</b> صحیح · <b>${nf(g.w)}</b> غلط · <b>${nf(g.b)}</b> نزده${g.m?` · <span class="warn">${nf(g.m)} سؤال چندگزینه‌ای (نزده حساب می‌شود)</span>`:''}${g.nk?` · ${nf(g.nk)} سؤال بدون کلید (نزده)`:''}</p>
+    <img src="${r.cv.toDataURL('image/jpeg',.6)}" style="max-width:100%;border-radius:10px"><p class="hint">سبز: درست · نارنجی: غلط · قرمز: چندگزینه‌ای. اگر اشتباه خوانده شد، بعد از اعمال می‌توانی هر سؤال را اصلاح کنی.</p>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="o-apply">اعمال روی آزمون</button></div>`;
+  }catch(e){out.innerHTML='<p class="warn">خواندن عکس ممکن نشد.</p>'}
+}
+function omrApply(){
+  if(!OM||!draft)return;
+  if(draft.answers.some(a=>a.s!=='b')&&!confirm('وضعیت پاسخ‌های فعلی با نتیجهٔ اسکن جایگزین می‌شود (مبحث و یادداشت‌ها حفظ می‌شوند). ادامه؟'))return;
+  if(!int(draft.total))setTotal('120');
+  OM.st.forEach((s,i)=>{const a=draft.answers[i];if(!a)return;a.s=s;if(s!=='w')delete a.r});
+  $('#entry').innerHTML=renderEntry();updateLive();queueDraftSave();closeOmr();toast('نتیجهٔ اسکن اعمال شد؛ پیش از ذخیره مرورش کن.');
 }
 
 /* global events */
@@ -1549,7 +1674,7 @@ document.addEventListener('click',e=>{
   switch(a){
     case'toggle-panels':{const close=!allPanelsCollapsed();DASH_PANELS.forEach(id=>close?collapsedPanels.add(id):collapsedPanels.delete(id));const y=window.scrollY;if(chart){chart.destroy();chart=null}if(examChart){examChart.destroy();examChart=null}main.innerHTML=renderDash();drawChart();drawExamChart();window.scrollTo({top:y});break;}
     case'counterfactual':counterfactualOpen.has(b.dataset.id)?counterfactualOpen.delete(b.dataset.id):counterfactualOpen.add(b.dataset.id);{const y=window.scrollY;if(chart){chart.destroy();chart=null}if(examChart){examChart.destroy();examChart=null}main.innerHTML=renderDash();drawChart();drawExamChart();window.scrollTo({top:y});}break;
-    case'edit-q':{const[id,i]=b.dataset.ref.split(':');const ex=S.exams.find(x=>x.id===id);if(ex&&ex.answers[+i])openQ(()=>ex.answers[+i],()=>persist(),`${ex.name} · سؤال ${nf(+i+1)}`,()=>{const l=$('#elist');if(l)l.innerHTML=errList()});break}
+    case'edit-q':{const[id,i]=b.dataset.ref.split(':');const ex=S.exams.find(x=>x.id===id);if(ex&&ex.answers[+i])openQ(()=>ex.answers[+i],()=>persistSoon(),`${ex.name} · سؤال ${nf(+i+1)}`,()=>{flushPersist();const l=$('#elist');if(l)l.innerHTML=errList()});break}
     case'rep-pdf':{const ex=S.exams.find(x=>x.id===b.dataset.id);if(ex)printHTML(toHTML(reportModel(ex)));break}
     case'rep-md':{const ex=S.exams.find(x=>x.id===b.dataset.id);if(ex)downloadText(toMD(reportModel(ex)),'گزارش-'+ex.name+'.md','text/markdown');break}
     case'add-reason':{const v=($('#newreason').value||'').trim();if(!v)break;if(S.customReasons.some(x=>x.label===v)||Object.values(R_EXTRA).includes(v))return toast('این دسته از قبل وجود دارد.');S.customReasons.push({id:'x_'+mkid(),label:v});persist();render();break}
@@ -1560,6 +1685,8 @@ document.addEventListener('click',e=>{
     case'rm-sub':d.subjects.splice(+b.dataset.i,1);$('#entry').innerHTML=renderEntry();updateLive();break;
     case'add-range':{const last=d.ranges[d.ranges.length-1],from=(int(last&&last.to)||0)+1;d.ranges.push({name:'',from,to:int(d.total)||''});$('#entry').innerHTML=renderEntry();main.querySelector(`[data-rng="${d.ranges.length-1}"][data-k=name]`).focus();updateLive();break}
     case'rm-rng':d.ranges.splice(+b.dataset.i,1);$('#entry').innerHTML=renderEntry();updateLive();break;
+    case'more-err':EF.limit+=80;{const l=$('#elist');if(l)l.innerHTML=errList()}break;
+    case'omr':openOmr();break;
     case'fill':for(let i=+b.dataset.from;i<=+b.dataset.to;i++){d.answers[i].s=b.dataset.v;delete d.answers[i].r;paintCell(i)}updateLive();break;
     case'quick':{let i=Math.max(1,int($('#qfrom').value))-1;const n=int(d.total);const s=toEn($('#qtext').value);for(const ch of s){if(i>=n)break;const v=/[1cCدd✓]/.test(ch)?'c':/[2wWغx✕]/.test(ch)?'w':/[0bBن\-–._]/.test(ch)?'b':null;if(!v)continue;d.answers[i].s=v;if(v!=='w')delete d.answers[i].r;paintCell(i);i++}$('#qfrom').value=Math.min(n,i+1);$('#qtext').value='';updateLive();break}
     case'save':saveDraft();break;
@@ -1568,7 +1695,7 @@ document.addEventListener('click',e=>{
     case'del':if(b.classList.contains('armed')){snapshot();S.exams=S.exams.filter(x=>x.id!==b.dataset.id);persist();openId=null;render();toast(t('deleted'))}else{b.classList.add('armed');b.textContent=t('sure');setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=t('del')}},3000)}break;
     case'save-tpl':{const items=tplItems();if(!items.length)return toast(t('need_total'));const total=items.reduce((s,x)=>s+x.count,0);const nm=($('#tplname').value||'').trim()||`${t('untitled')} ${nf(total)}`;S.templates.push({id:uid(),name:nm,total,items});persist();main.innerHTML=renderEditor();updateLive();toast(t('saved'));break}
     case'del-tpl':S.templates=S.templates.filter(x=>x.id!==b.dataset.id);persist();render();break;
-    case'export':{const txt=JSON.stringify(S,null,2);$('#bk').value=txt;try{const bl=new Blob([txt],{type:'application/json'}),l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download=`karnameh-${today()}.json`;document.body.appendChild(l);l.click();l.remove()}catch(err){}break}
+    case'export':{const txt=JSON.stringify(Object.assign({},S,{appVersion:APP_VERSION}),null,2);$('#bk').value=txt;try{const bl=new Blob([txt],{type:'application/json'}),l=document.createElement('a');l.href=URL.createObjectURL(bl);l.download=`karnameh-${today()}.json`;document.body.appendChild(l);l.click();l.remove()}catch(err){}break}
     case'import-paste':restore($('#bk').value);break;
     case'reset':if(b.classList.contains('armed')){snapshot();S=sanitize({settings:S.settings,customReasons:S.customReasons});persist();view='dash';render();toast(t('deleted'))}else{b.classList.add('armed');b.textContent=t('sure');setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent=t('reset')}},3000)}break;
   }
@@ -1581,10 +1708,10 @@ main.addEventListener('input',e=>{
     if(k==='count'&&d.subjects.length===1){d.total=el.value;const ti=main.querySelector('[data-f=total]');if(ti)ti.value=el.value}
     const n=int(s.count),c=int(s.c),w=int(s.w);const o=$('#sb-'+i);if(o)o.textContent=nf(Math.max(0,n-c-w));$('#sr-'+i).classList.toggle('bad',c+w>n);$('#summsg').textContent=sumMsg();updateLive();return}
   if(el.dataset.rng!=null){d.ranges[+el.dataset.rng][el.dataset.k]=el.value;$('#grid').innerHTML=renderGrid();updateLive();return}
-  if(el.dataset.ecomment){const[id,i]=el.dataset.ecomment.split(':');const ex=S.exams.find(x=>x.id===id);if(ex&&ex.answers[i]){ex.answers[i].comment=el.value;persist()}return}
+  if(el.dataset.ecomment){const[id,i]=el.dataset.ecomment.split(':');const ex=S.exams.find(x=>x.id===id);if(ex&&ex.answers[i]){ex.answers[i].comment=el.value;persistSoon()}return}
   if(el.dataset.enote){const ex=S.exams.find(x=>x.id===el.dataset.enote);if(ex){ex.note=el.value;clearTimeout(noteTimer);noteTimer=setTimeout(()=>{persist();toast(t('notes_saved'))},600)}return}
   if(el.dataset.esearch!=null){EF.q=el.value;const l=$('#elist');if(l)l.innerHTML=errList();return}
-  if(el.dataset.s==='goal'){S.settings.goal=Math.max(0,Math.min(100,int(el.value)));persist();return}
+  if(el.dataset.s==='goal'){S.settings.goal=Math.max(0,Math.min(100,int(el.value)));persistSoon();return}
 });
 
 main.addEventListener('change',e=>{
@@ -1614,9 +1741,11 @@ main.addEventListener('keydown',e=>{
 
 $('#lang').addEventListener('change',e=>{S.settings.lang=e.target.value;persist();render()});
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeQ()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeQ();closeOmr()}});
 ['input','change','click'].forEach(ev=>main.addEventListener(ev,queueDraftSave));
-window.addEventListener('pagehide',()=>{if(view==='edit'&&draft){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch(e){}}});
+document.addEventListener('DOMContentLoaded',()=>{if(view==='dash'&&S.exams.length&&!chart&&window.Chart){drawChart();drawExamChart()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)flushPersist()});
+window.addEventListener('pagehide',()=>{flushPersist();if(view==='edit'&&draft){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch(e){}}});
 try{localStorage.setItem('_t','1');localStorage.removeItem('_t')}catch(e){storageOk=false}
 render();
 if(MIGRATED)persist();else setSaveStatus(storageOk);

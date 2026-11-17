@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'karnameh-pro-v1';
+const CACHE_VERSION = 'karnameh-pro-v1.0.0';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_VERSION).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
